@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">DriodGo</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_notifications">Notifications</string>
+    <string name="menu_reload">重新加载</string>
+</resources>

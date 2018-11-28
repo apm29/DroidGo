@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--target api 28 时默认需要请求为https,修改为不必须 -->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="true" />
+</network-security-config>
