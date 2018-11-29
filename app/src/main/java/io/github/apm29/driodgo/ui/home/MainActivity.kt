@@ -22,8 +22,7 @@ import kotlinx.android.synthetic.main.activity_drawer.*
 import kotlinx.android.synthetic.main.activity_host.*
 import javax.inject.Inject
 
-class MainActivity : AppCompatActivity() {
-
+class MainActivity : BaseActivity() {
 
     private val mOnNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
         when (item.itemId) {
@@ -62,7 +61,7 @@ class MainActivity : AppCompatActivity() {
 
         DaggerHomeComponent.builder()
             .homeModule(HomeModule(this))
-            .coreComponent(DroidGoApp.getCoreComponent(this))
+            .coreComponent(mCoreComponent)
             .build()
             .inject(this)
 
@@ -112,20 +111,7 @@ class MainActivity : AppCompatActivity() {
 
             }
         })
-        showToast("------start load cards-------")
-        homeViewModel.message.observe(this, Observer {
-            it.getDataIfNotConsumed {
-                AlertDialog.Builder(this)
-                    .setMessage(it)
-                    .create()
-                    .show()
-            }
-        })
-        homeViewModel.loading.observe(this, Observer {
-            it.getDataIfNotConsumed { loading ->
-                showToast(if (loading) "加载中" else "加载完成")
-            }
-        })
+
 
         homeViewModel.loadArtifact()
     }

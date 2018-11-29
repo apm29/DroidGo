@@ -1,14 +1,16 @@
 package io.github.apm29.driodgo.vm
 
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import io.github.apm29.core.arch.IOSensitive
 import io.github.apm29.core.arch.IOSensitiveViewModel
 import io.github.apm29.driodgo.model.artifact.bean.CardListItem
 import io.github.apm29.driodgo.model.artifact.repository.ArtifactRepository
 import javax.inject.Inject
 
 class HomeViewModel @Inject constructor(
-    private val artifactRepository: ArtifactRepository
-):IOSensitiveViewModel() {
+    private val artifactRepository: ArtifactRepository,val io: IOSensitive
+):ViewModel() {
 
 
     val artifactItems:MutableLiveData<List<CardListItem>> = MutableLiveData()
@@ -16,7 +18,7 @@ class HomeViewModel @Inject constructor(
 
     fun loadArtifact(reload:Boolean = false){
         artifactRepository.loadCard(
-            artifactItems,this,reload
+            artifactItems,io,reload
         )
     }
 
