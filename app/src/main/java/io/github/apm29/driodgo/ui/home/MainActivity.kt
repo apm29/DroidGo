@@ -2,40 +2,38 @@ package io.github.apm29.driodgo.ui.home
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.*
-import android.widget.ImageView
-import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.Observer
-import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.load.engine.DiskCacheStrategy
+import android.view.Menu
+import android.view.MenuItem
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import io.github.apm29.core.arch.*
-import io.github.apm29.core.utils.GlideApp
-import io.github.apm29.core.utils.showToast
+import io.github.apm29.core.arch.BaseActivity
 import io.github.apm29.driodgo.R
-import io.github.apm29.driodgo.di.DaggerHomeComponent
-import io.github.apm29.driodgo.di.HomeModule
-import io.github.apm29.driodgo.vm.HomeViewModel
 import kotlinx.android.synthetic.main.activity_drawer.*
 import kotlinx.android.synthetic.main.activity_host.*
-import javax.inject.Inject
 
 class MainActivity : BaseActivity() {
+
+    private val cardStackFragment:CardStackFragment by lazy {
+        CardStackFragment()
+    }
 
     private val mOnNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
         when (item.itemId) {
             R.id.navigation_home -> {
-                message.setText(R.string.title_home)
+                supportFragmentManager.beginTransaction()
+                    .replace(R.id.fragmentHost, cardStackFragment)
+                    .commit()
                 return@OnNavigationItemSelectedListener true
             }
             R.id.navigation_dashboard -> {
-                message.setText(R.string.title_dashboard)
+                supportFragmentManager.beginTransaction()
+                    .replace(R.id.fragmentHost, cardStackFragment)
+                    .commit()
                 return@OnNavigationItemSelectedListener true
             }
             R.id.navigation_notifications -> {
-                message.setText(R.string.title_notifications)
+                supportFragmentManager.beginTransaction()
+                    .replace(R.id.fragmentHost, cardStackFragment)
+                    .commit()
                 return@OnNavigationItemSelectedListener true
             }
         }
@@ -43,14 +41,12 @@ class MainActivity : BaseActivity() {
     }
 
 
-    @Inject
-    lateinit var homeViewModel: HomeViewModel
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_drawer)
 
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
+
 
         val appLinkIntent = intent
         val appLinkAction = appLinkIntent.action
@@ -59,65 +55,15 @@ class MainActivity : BaseActivity() {
         println(appLinkAction)
         println(appLinkData)
 
-        DaggerHomeComponent.builder()
-            .homeModule(HomeModule(this))
-            .coreComponent(mCoreComponent)
-            .build()
-            .inject(this)
 
 
-        savedInstanceState?.apply {
-            navigation.selectedItemId = getInt("index", R.id.navigation_home)
-        }
+        navigation.selectedItemId =savedInstanceState?.getInt("index", R.id.navigation_home)?:R.id.navigation_home
 
 
         drawer.setNavigationItemSelectedListener {
             return@setNavigationItemSelectedListener true
         }
 
-        val displayMetrics = resources.displayMetrics
-        val density = displayMetrics.density
-        val widthPixels = displayMetrics.widthPixels
-
-        val imageWidth = ((widthPixels * 1f - 48 * density)/2).toInt()
-        val imageHeight = (imageWidth * 16f / 9f).toInt()
-
-        cardList.layoutManager = GridLayoutManager(this, 2)
-
-        homeViewModel.artifactItems.observe(this, Observer {
-            cardList.adapter = object : RecyclerView.Adapter<VH>() {
-                override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
-                    val view = layoutInflater.inflate(R.layout.item_card_layout, parent, false)
-                    return VH(view)
-                }
-
-                override fun getItemCount(): Int {
-                    return it.filter { card ->
-                        card.card_type != "Passive Ability" && card.card_type != "Ability"
-                    }.size
-                }
-
-                override fun onBindViewHolder(holder: VH, position: Int) {
-                    val cardListItem = it.filter {
-                        it.card_type != "Passive Ability" && it.card_type != "Ability"
-                    }[holder.adapterPosition]
-
-                    GlideApp.with(this@MainActivity)
-                        .load(cardListItem.large_image?.schinese)
-                        .override(imageWidth,imageHeight)
-                        .diskCacheStrategy(DiskCacheStrategy.ALL)
-                        .into(holder.largeImage)
-                }
-
-            }
-        })
-
-
-        homeViewModel.loadArtifact()
-    }
-
-    class VH(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val largeImage: ImageView = itemView.findViewById(R.id.largeImage)
     }
 
     override fun onNewIntent(intent: Intent?) {
@@ -142,7 +88,6 @@ class MainActivity : BaseActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         if (item?.itemId == R.id.menu_refresh) {
-            homeViewModel.loadArtifact(reload = true)
             return true
         }
         return super.onOptionsItemSelected(item)
