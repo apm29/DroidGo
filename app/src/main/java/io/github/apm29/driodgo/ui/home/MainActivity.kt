@@ -2,8 +2,6 @@ package io.github.apm29.driodgo.ui.home
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuItem
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import io.github.apm29.core.arch.BaseActivity
 import io.github.apm29.driodgo.R
@@ -12,7 +10,7 @@ import kotlinx.android.synthetic.main.activity_host.*
 
 class MainActivity : BaseActivity() {
 
-    private val cardStackFragment:CardStackFragment by lazy {
+    private val cardStackFragment: CardStackFragment by lazy {
         CardStackFragment()
     }
 
@@ -57,7 +55,7 @@ class MainActivity : BaseActivity() {
 
 
 
-        navigation.selectedItemId =savedInstanceState?.getInt("index", R.id.navigation_home)?:R.id.navigation_home
+        navigation.selectedItemId = savedInstanceState?.getInt("index", R.id.navigation_home) ?: R.id.navigation_home
 
 
         drawer.setNavigationItemSelectedListener {
@@ -77,20 +75,5 @@ class MainActivity : BaseActivity() {
         outState?.putInt("index", navigation.selectedItemId)
     }
 
-
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(
-            R.menu.main_menu,
-            menu
-        )
-        return true
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-        if (item?.itemId == R.id.menu_refresh) {
-            return true
-        }
-        return super.onOptionsItemSelected(item)
-    }
 
 }

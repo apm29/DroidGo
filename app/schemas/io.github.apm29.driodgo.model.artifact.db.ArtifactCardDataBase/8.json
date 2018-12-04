@@ -1,0 +1,172 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 8,
+    "identityHash": "b796357b9d0c896de9136d5ed0b1dd8a",
+    "entities": [
+      {
+        "tableName": "artifact_card",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`base_card_id` INTEGER, `card_name` TEXT, `card_text` TEXT, `large_image` TEXT, `ingame_image` TEXT, `card_type` TEXT, `card_id` INTEGER, `mini_image` TEXT, `references` TEXT, `illustrator` TEXT, `rarity` TEXT, `is_black` INTEGER, `is_red` INTEGER, `is_green` INTEGER, `is_blue` INTEGER, `is_crosslane` INTEGER, `charges` INTEGER, `sub_type` TEXT, `gold_cost` INTEGER, `mana_cost` INTEGER, `attack` INTEGER, `armor` INTEGER, `hit_points` INTEGER, `is_included` INTEGER NOT NULL, PRIMARY KEY(`card_id`))",
+        "fields": [
+          {
+            "fieldPath": "cardListItem.base_card_id",
+            "columnName": "base_card_id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "cardListItem.card_name",
+            "columnName": "card_name",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "cardListItem.card_text",
+            "columnName": "card_text",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "cardListItem.large_image",
+            "columnName": "large_image",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "cardListItem.ingame_image",
+            "columnName": "ingame_image",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "cardListItem.card_type",
+            "columnName": "card_type",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "cardListItem.card_id",
+            "columnName": "card_id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "cardListItem.mini_image",
+            "columnName": "mini_image",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "cardListItem.references",
+            "columnName": "references",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "cardListItem.illustrator",
+            "columnName": "illustrator",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "cardListItem.rarity",
+            "columnName": "rarity",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "cardListItem.is_black",
+            "columnName": "is_black",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "cardListItem.is_red",
+            "columnName": "is_red",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "cardListItem.is_green",
+            "columnName": "is_green",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "cardListItem.is_blue",
+            "columnName": "is_blue",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "cardListItem.is_crosslane",
+            "columnName": "is_crosslane",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "cardListItem.charges",
+            "columnName": "charges",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "cardListItem.sub_type",
+            "columnName": "sub_type",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "cardListItem.gold_cost",
+            "columnName": "gold_cost",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "cardListItem.mana_cost",
+            "columnName": "mana_cost",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "cardListItem.attack",
+            "columnName": "attack",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "cardListItem.armor",
+            "columnName": "armor",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "cardListItem.hit_points",
+            "columnName": "hit_points",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "cardListItem.is_included",
+            "columnName": "is_included",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "card_id"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      }
+    ],
+    "views": [],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"b796357b9d0c896de9136d5ed0b1dd8a\")"
+    ]
+  }
+}

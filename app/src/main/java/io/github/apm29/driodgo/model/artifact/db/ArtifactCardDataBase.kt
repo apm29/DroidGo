@@ -7,7 +7,7 @@ import com.google.gson.reflect.TypeToken
 import io.github.apm29.driodgo.model.artifact.bean.*
 
 @TypeConverters(ArtifactCardDataBase.TagsConverter::class)
-@Database(entities = [CardEntity::class], version = 4, exportSchema = false)
+@Database(entities = [CardEntity::class], version = 8, exportSchema = true)
 abstract class ArtifactCardDataBase : RoomDatabase() {
 
     abstract fun getArtifactCardDao(): ArtifactCardDao
@@ -40,16 +40,16 @@ abstract class ArtifactCardDataBase : RoomDatabase() {
 
         @TypeConverter
         @JvmStatic
-        fun fromString(value: String?): List<CardListItem>? {
+        fun fromString(value: String?): List<CardReference>? {
             if(value == null)
                 return emptyList()
-            val listType = object : TypeToken<List<CardListItem>>() {}.type
+            val listType = object : TypeToken<List<CardReference>>() {}.type
             return Gson().fromJson(value, listType)
         }
 
         @TypeConverter
         @JvmStatic
-        fun fromArrayList(list: List<CardListItem>?): String? {
+        fun fromArrayList(list: List<CardReference>?): String? {
             val gson = Gson()
             return gson.toJson(list)
         }

@@ -1,6 +1,7 @@
 package io.github.apm29.driodgo.model.artifact
 
 import android.util.Base64
+import io.github.apm29.core.utils.deleteHtml
 import java.lang.IllegalArgumentException
 import java.util.regex.Pattern
 
@@ -187,48 +188,6 @@ object CardEncoder {
     }
 }
 
-/**
- * 定义script的正则表达式
- */
-private const val REGEX_SCRIPT = "<script[^>]*?>[\\s\\S]*?<\\/script>"
-/**
- * 定义style的正则表达式
- */
-private const val REGEX_STYLE = "<style[^>]*?>[\\s\\S]*?<\\/style>"
-/**
- * 定义HTML标签的正则表达式
- */
-private const val REGEX_HTML = "<[^>]+>"
-/**
- * 定义空格回车换行符
- */
-private const val REGEX_SPACE = "\\s*|\t|\r|\n"
-
-fun delHTMLTag(htmlStr: String): String {
-    var copy = htmlStr
-    // 过滤script标签
-    val pScript = Pattern.compile(REGEX_SCRIPT, Pattern.CASE_INSENSITIVE)
-    val mScript = pScript.matcher(copy)
-    copy = mScript.replaceAll("")
-    // 过滤style标签
-    val pStyle = Pattern.compile(REGEX_STYLE, Pattern.CASE_INSENSITIVE)
-    val mStyle = pStyle.matcher(copy)
-    copy = mStyle.replaceAll("")
-    // 过滤html标签
-    val pHtml = Pattern.compile(REGEX_HTML, Pattern.CASE_INSENSITIVE)
-    val mHtml = pHtml.matcher(copy)
-    copy = mHtml.replaceAll("")
-    // 过滤空格回车标签
-    val pSpace = Pattern.compile(REGEX_SPACE, Pattern.CASE_INSENSITIVE)
-    val mSpace = pSpace.matcher(copy)
-    copy = mSpace.replaceAll("")
-    return copy.trim { it <= ' ' } // 返回文本字符串
-}
-
-fun String.deleteHtml(): String {
-    return delHTMLTag(this)
-}
-
 
 object CardDecoder {
 
@@ -245,7 +204,7 @@ object CardDecoder {
         val totalBytes = bytes.size
         val versionAndHero = bytes[currentByteIndex++]
 
-        val version = versionAndHero.toInt() shr 4
+        val version = versionAndHero shr 4
         if (version != mCurrentVersion) {
             throw IllegalArgumentException("并非当前版本卡组")
         }
@@ -324,10 +283,10 @@ object CardDecoder {
         //header contains the count (2 bits), a continue flag, and 5 bits of offset data. If we have 11 for the count bits we have the count
         //encoded after the offset
         val nHeader = bytes[currentByteIndex++]
-        val bHasExtendedCount = ((nHeader.toInt() shr 6) == 0x03)
+        val bHasExtendedCount = ((nHeader shr 6) == 0x03)
         //read in the delta, which has 5 bits in the header, then additional bytes while the value is set
         val nCardDelta = Mask(0)
-        if ( !readVarEncodedUint32(nHeader.toInt(), 5, indexEnd,nCardDelta)){
+        if ( !readVarEncodedUint32(nHeader, 5, indexEnd,nCardDelta)){
             throw  IllegalArgumentException("card delta")
         }
         val nOutID = nPrevCardBase + nCardDelta.out
@@ -341,7 +300,7 @@ object CardDecoder {
             nOut.out
         } else {
             //the count is just the upper two bits + 1 (since we don't encode zero)
-            (nHeader.toInt() shr 6) + 1
+            (nHeader shr 6) + 1
         }
 
         return if (isHero) Card(nOutID, nOutCount, 1) else Card(nOutID, 1, nOutCount)
@@ -362,7 +321,7 @@ object CardDecoder {
                     throw IllegalArgumentException("index 错误")
                 }
                 val nextByte = bytes[currentByteIndex++]
-                if (!readBitsChunk(nextByte.toInt(), 7, deltaShift, mask)) {
+                if (!readBitsChunk(nextByte, 7, deltaShift, mask)) {
                     break
                 }
                 deltaShift += 7
