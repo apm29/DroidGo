@@ -6,24 +6,66 @@
         android:orientation="vertical"
         android:layout_margin="6dp"
         app:contentPadding="6dp"
+        android:id="@+id/cardStack"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         >
 
     <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             >
 
         <ImageView
                 android:id="@+id/largeImage"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="0dp"
+                android:layout_height="140dp"
+                app:layout_constraintDimensionRatio="9:16"
+                android:layout_marginStart="6dp"
                 android:src="@mipmap/ic_launcher"
-                app:layout_constraintEnd_toEndOf="parent"
+                android:scaleType="fitXY"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
+                />
+
+        <TextView
+                android:id="@+id/textName"
+                android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                android:layout_width="wrap_content"
+                android:textColor="@color/colorPrimaryDark"
+                app:layout_constraintStart_toEndOf="@id/largeImage"
+                app:layout_constraintTop_toTopOf="parent"
+                android:layout_marginTop="6dp"
+                tools:text="@string/loading_text"
+                android:layout_marginStart="12dp"
+                android:layout_height="wrap_content"
+                />
+        <TextView
+                android:id="@+id/textAbility"
+                tools:text="Hero Ability\nAfter you play a blue spell,there is a 25% chance to put a base copy of that card into your hand"
+                app:layout_constraintStart_toEndOf="@id/largeImage"
+                app:layout_constraintTop_toBottomOf="@id/textName"
+                android:layout_marginStart="12dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constrainedWidth="true"
+                android:layout_marginEnd="6dp"
+                android:layout_marginTop="8dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                />
+
+        <androidx.recyclerview.widget.RecyclerView
+                app:layout_constraintTop_toBottomOf="@id/textAbility"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintHorizontal_bias="1"
+                android:layout_marginEnd="6dp"
+                android:id="@+id/imageIncludes"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                app:layout_constraintStart_toEndOf="@+id/largeImage"
+                android:layout_marginStart="8dp"
                 />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

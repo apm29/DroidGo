@@ -42,7 +42,7 @@ class RemoteRepositoryModule {
             .addInterceptor(
                 //日志LOG
                 LoggingInterceptor.Builder()
-                    .loggable(false)
+                    .loggable(BuildConfig.DEBUG)
                     .setLevel(Level.BASIC)
                     .log(Platform.INFO)
                     .request("Request-LOG")

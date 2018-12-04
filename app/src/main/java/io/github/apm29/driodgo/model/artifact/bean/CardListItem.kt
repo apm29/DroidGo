@@ -9,7 +9,7 @@ data class CardListItem(
     val card_type: String?,
     val card_id: Int?,
     val mini_image: MiniImage?,
-    val references: List<CardListItem>?,
+    val references: List<CardReference>?,
     val illustrator: String?,
     val rarity: String?,
 
@@ -25,5 +25,8 @@ data class CardListItem(
     val mana_cost: Int?,//魔法消耗
     val attack: Int?,//攻击
     val armor: Int?,//护甲
-    val hit_points: Int?//生命
+    val hit_points: Int?,//生命
+
+    var is_included:Boolean = false//是否是其他卡牌附带
 )
+

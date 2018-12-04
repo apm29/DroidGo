@@ -3,9 +3,10 @@ package io.github.apm29.driodgo.vm
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import io.github.apm29.core.arch.IOSensitive
-import io.github.apm29.core.arch.IOSensitiveViewModel
 import io.github.apm29.driodgo.model.artifact.bean.CardListItem
+import io.github.apm29.driodgo.model.artifact.bean.MiniImage
 import io.github.apm29.driodgo.model.artifact.repository.ArtifactRepository
+import io.reactivex.Single
 import javax.inject.Inject
 
 class HomeViewModel @Inject constructor(
@@ -20,6 +21,10 @@ class HomeViewModel @Inject constructor(
         artifactRepository.loadCard(
             artifactItems,io,reload
         )
+    }
+
+    fun loadImageByRefId(id:Int): Single<MiniImage> {
+        return artifactRepository.getImage(id)
     }
 
 }
