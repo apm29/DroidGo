@@ -23,6 +23,7 @@ import com.bumptech.glide.RequestBuilder
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import io.github.apm29.core.utils.glide.GlideApp
+import io.github.apm29.core.utils.startRotate
 import io.github.apm29.driodgo.R
 import io.github.apm29.driodgo.model.artifact.bean.CardListItem
 import io.github.apm29.driodgo.model.artifact.bean.CardReference
@@ -113,15 +114,12 @@ class CardAdapter(
             val expand = payloads.contains(ItemPayLoad.Expand)
             val expandAll = payloads.contains(ItemPayLoad.ExpandALL)
             val cardListItem = getFilteredData()[position]
-            if (expand) {
+            if (expand || expandAll) {
                 holder.grpCollapsed.visibility = if (!cardListItem.isExpand) View.VISIBLE else View.GONE
                 holder.grpExpand.visibility = if (cardListItem.isExpand) View.VISIBLE else View.GONE
                 holder.cardStack.setCardBackgroundColor(cardListItem.getColor(context))
             }
-            if (expandAll){
-                holder.grpCollapsed.visibility = if (!cardListItem.isExpand) View.VISIBLE else View.GONE
-                holder.grpExpand.visibility = if (cardListItem.isExpand) View.VISIBLE else View.GONE
-                holder.cardStack.setCardBackgroundColor(cardListItem.getColor(context))
+            if (expandAll) {
                 holder.actionExpand.rotation = if (cardListItem.isExpand) 180f else 0f
             }
         }
@@ -177,17 +175,9 @@ class CardAdapter(
 
             actionExpand.setOnClickListener {
                 cardListItem.isExpand = !cardListItem.isExpand
-                val animator = ValueAnimator().apply {
-                    setFloatValues(1f)
-                    duration = 400
-                }
-                val startDegree = if (cardListItem.isExpand) 0f else -180f
-                animator.addUpdateListener {
-                    val fraction = it.animatedFraction
-                    actionExpand.rotation = startDegree + 180f * fraction
-                }
-                animator.start()
-
+                actionExpand.startRotate(
+                    if (cardListItem.isExpand) 0f else -180f
+                )
                 notifyItemChanged(position, ItemPayLoad.Expand)
             }
             largeImage.setOnClickListener {
