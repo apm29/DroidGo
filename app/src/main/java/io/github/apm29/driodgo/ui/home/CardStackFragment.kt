@@ -61,8 +61,10 @@ class CardStackFragment : BaseFragment() {
         searchView.visibility = View.VISIBLE
         searchView.queryHint = getString(R.string.hint_input_hero_name)
         searchView.setOnSearchClickListener {
-            addFilter(FilterTag.Name) {
-                it.card_name?.schinese?.contains(searchView.query) == true
+            if (!searchView.query.isNullOrBlank()) {
+                cardAdapter.addCardFilter(FilterTag.Name) { card ->
+                    card.card_name?.schinese?.contains(searchView.query) == true
+                }
             }
         }
         searchView.setOnQueryTextListener(
@@ -73,9 +75,9 @@ class CardStackFragment : BaseFragment() {
 
                 override fun onQueryTextChange(newText: String?): Boolean {
                     if (newText.isNullOrEmpty()) {
-                        removeFilter(FilterTag.Name)
+                        cardAdapter.removeCardFilter(FilterTag.Name)
                     } else {
-                        addFilter(FilterTag.Name) {
+                        cardAdapter.addCardFilter(FilterTag.Name) {
                             it.card_name?.schinese?.contains(newText) == true
                         }
                     }
@@ -95,17 +97,6 @@ class CardStackFragment : BaseFragment() {
         homeViewModel.loadArtifact(reload)
     }
 
-    fun addFilter(tag: FilterTag, filter: (CardListItem) -> Boolean): Boolean {
-        if (cardStack.adapter == null) return false
-        (cardStack.adapter as CardAdapter).addCardFilter(tag, filter)
-        return true
-    }
-
-    fun removeFilter(tag: FilterTag): Boolean {
-        if (cardStack.adapter == null) return false
-        (cardStack.adapter as CardAdapter).removeCardFilter(tag)
-        return true
-    }
 
     class VH(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val largeImage: ImageView = itemView.findViewById(R.id.largeImage)

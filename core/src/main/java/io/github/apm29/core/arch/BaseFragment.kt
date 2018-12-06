@@ -3,7 +3,6 @@ package io.github.apm29.core.arch
 import android.content.Context
 import android.os.Bundle
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProviders
 
 open class BaseFragment:Fragment() ,HandleBackPress{
 
