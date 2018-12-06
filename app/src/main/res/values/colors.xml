@@ -3,4 +3,12 @@
     <color name="colorPrimary">#008577</color>
     <color name="colorPrimaryDark">#00574B</color>
     <color name="colorAccent">#D81B60</color>
+    <color name="textColorPrimary">#ffff</color>
+    <color name="white">#ffff</color>
+
+    <color name="card_green">#ff647746</color>
+    <color name="card_red">#ff81313b</color>
+    <color name="card_blue">#ff3a5b79</color>
+    <color name="card_black">#ff352f34</color>
+    <color name="card_gold">#ffd39c43</color>
 </resources>

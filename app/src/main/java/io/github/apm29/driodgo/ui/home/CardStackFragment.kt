@@ -2,19 +2,20 @@ package io.github.apm29.driodgo.ui.home
 
 import android.os.Bundle
 import android.view.*
-import android.widget.GridLayout
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
-import androidx.fragment.app.Fragment
+import androidx.cardview.widget.CardView
+import androidx.constraintlayout.widget.Group
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import io.github.apm29.core.arch.BaseActivityViewModel
+import com.bumptech.glide.integration.recyclerview.RecyclerViewPreloader
+import com.bumptech.glide.util.ViewPreloadSizeProvider
+import io.github.apm29.core.arch.BaseFragment
 import io.github.apm29.core.arch.DroidGoApp
-import io.github.apm29.core.arch.IOSensitiveViewModel
 import io.github.apm29.driodgo.R
 import io.github.apm29.driodgo.di.DaggerHomeComponent
 import io.github.apm29.driodgo.di.HomeModule
@@ -23,15 +24,14 @@ import io.github.apm29.driodgo.vm.HomeViewModel
 import kotlinx.android.synthetic.main.fragment_card_stack.*
 import javax.inject.Inject
 
-class CardStackFragment : Fragment() {
 
-
-    val io: IOSensitiveViewModel by lazy {
-        ViewModelProviders.of(this).get(BaseActivityViewModel::class.java)
-    }
+class CardStackFragment : BaseFragment() {
 
     @Inject
     lateinit var homeViewModel: HomeViewModel
+
+    @Inject
+    lateinit var cardAdapter: CardAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,36 +41,57 @@ class CardStackFragment : Fragment() {
             .coreComponent((requireActivity().application as DroidGoApp).mCoreComponent)
             .build()
             .inject(this)
+
+        homeViewModel.artifactItems.observe(this, Observer {
+            cardAdapter.setCard(it)
+        })
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 
         val inflated = layoutInflater.inflate(R.layout.fragment_card_stack, container, false)
-        val cardStack = inflated.findViewById<RecyclerView>(R.id.cardStack)
         val toolbar = inflated.findViewById<Toolbar?>(R.id.toolbar)
         (requireActivity() as? AppCompatActivity)?.setSupportActionBar(toolbar)
         setHasOptionsMenu(true)
-//        cardStack.layoutManager = GridLayoutManager(requireContext(), 2)
-
-        cardStack.layoutManager = LinearLayoutManager(requireContext())
-        homeViewModel.artifactItems.observe(this, Observer {
-            if (cardStack.adapter == null) {
-                cardStack.adapter = CardAdapter(this.requireContext(), it.toMutableList())
-            } else {
-                (cardStack.adapter as CardAdapter).setCard(it)
-            }
-        })
-
-        loadCardData()
-
         return inflated
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        val searchView = view.findViewById<SearchView>(R.id.searchView)
+        searchView.visibility = View.VISIBLE
+        searchView.queryHint = getString(R.string.hint_input_hero_name)
+        searchView.setOnSearchClickListener {
+            addFilter(FilterTag.Name) {
+                it.card_name?.schinese?.contains(searchView.query) == true
+            }
+        }
+        searchView.setOnQueryTextListener(
+            object : SearchView.OnQueryTextListener {
+                override fun onQueryTextSubmit(query: String?): Boolean {
+                    return false
+                }
 
+                override fun onQueryTextChange(newText: String?): Boolean {
+                    if (newText.isNullOrEmpty()) {
+                        removeFilter(FilterTag.Name)
+                    } else {
+                        addFilter(FilterTag.Name) {
+                            it.card_name?.schinese?.contains(newText) == true
+                        }
+                    }
+                    return true
+                }
+
+            }
+        )
+        cardStack.layoutManager = LinearLayoutManager(requireContext())
+        val preLoader: ViewPreloadSizeProvider<CardListItem> = ViewPreloadSizeProvider()
+        cardStack.addOnScrollListener(RecyclerViewPreloader(this, cardAdapter, preLoader, 5))
+        cardStack.adapter = cardAdapter
+        loadCardData()
     }
 
-    private fun loadCardData(reload:Boolean = false) {
+    private fun loadCardData(reload: Boolean = false) {
         homeViewModel.loadArtifact(reload)
     }
 
@@ -80,14 +101,28 @@ class CardStackFragment : Fragment() {
         return true
     }
 
-    class VH(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val largeImage: ImageView? = itemView.findViewById(R.id.largeImage)
-        val textName: TextView? = itemView.findViewById(R.id.textName)
-        val textAbility: TextView? = itemView.findViewById(R.id.textAbility)
-        val imageIncludes: RecyclerView? = itemView.findViewById(R.id.imageIncludes)
+    fun removeFilter(tag: FilterTag): Boolean {
+        if (cardStack.adapter == null) return false
+        (cardStack.adapter as CardAdapter).removeCardFilter(tag)
+        return true
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
+    class VH(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val largeImage: ImageView = itemView.findViewById(R.id.largeImage)
+        val textName: TextView = itemView.findViewById(R.id.textName)
+        val textAbility: TextView = itemView.findViewById(R.id.textAbility)
+        val imageIncludes: RecyclerView = itemView.findViewById(R.id.imageIncludes)
+
+        val grpExpand: Group = itemView.findViewById(R.id.grpExpand)
+        val grpCollapsed: Group = itemView.findViewById(R.id.grpCollapsed)
+
+        val collapsedImage: ImageView = itemView.findViewById(R.id.collapsedImage)
+        val actionExpand: ImageView = itemView.findViewById(R.id.actionExpand)
+        val textSmallName: TextView = itemView.findViewById(R.id.textNameCollapsed)
+        val cardStack: CardView = itemView.findViewById(R.id.cardStack)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater?) {
         inflater?.inflate(R.menu.card_stack_menu, menu)
     }
 

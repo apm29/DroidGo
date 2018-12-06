@@ -1,5 +1,11 @@
 package io.github.apm29.driodgo.model.artifact.bean
 
+import android.content.Context
+import android.content.res.ColorStateList
+import android.graphics.Color
+import androidx.core.content.ContextCompat
+import io.github.apm29.driodgo.R
+
 data class CardListItem(
     val base_card_id: Int?,
     val card_name: CardName?,
@@ -27,6 +33,23 @@ data class CardListItem(
     val armor: Int?,//护甲
     val hit_points: Int?,//生命
 
-    var is_included:Boolean = false//是否是其他卡牌附带
-)
+    var is_included: Boolean = false//是否是其他卡牌附带
+) {
+    fun getColor(context: Context): ColorStateList {
+        if (isExpand){
+            return ColorStateList.valueOf(Color.WHITE)
+        }
+        val color: Int = when {
+            is_black == true -> ContextCompat.getColor(context, R.color.card_black)
+            is_blue == true -> ContextCompat.getColor(context, R.color.card_blue)
+            is_green == true -> ContextCompat.getColor(context, R.color.card_green)
+            is_red == true -> ContextCompat.getColor(context, R.color.card_red)
+            else -> ContextCompat.getColor(context, R.color.card_gold)
+        }
+        return ColorStateList.valueOf(color)
+    }
+
+    @Transient
+    var isExpand: Boolean = true
+}
 

@@ -6,6 +6,18 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:actionOverflowButtonStyle">@style/ActionOverFlow</item>
+        <item name="searchViewStyle">@style/SearchView</item>
     </style>
+
+    <style name="SearchView" parent="Widget.AppCompat.SearchView">
+        <item name="searchIcon">@drawable/ic_action_search</item>
+    </style>
+
+    <!--menu 栏 样式-->
+    <style name="ActionOverFlow" parent="Widget.AppCompat.Light.ActionButton.Overflow">
+        <item name="android:src">@drawable/ic_action_more</item>
+    </style>
+
 
 </resources>

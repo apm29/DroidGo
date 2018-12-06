@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import io.github.apm29.core.arch.BaseActivity
+import io.github.apm29.core.utils.Event
 import io.github.apm29.driodgo.R
 import kotlinx.android.synthetic.main.activity_drawer.*
 import kotlinx.android.synthetic.main.activity_host.*
@@ -46,13 +47,13 @@ class MainActivity : BaseActivity() {
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
 
 
+        /**
+         * DeepLink
+         */
         val appLinkIntent = intent
-        val appLinkAction = appLinkIntent.action
         val appLinkData = appLinkIntent.data
-
-        println(appLinkAction)
-        println(appLinkData)
-
+        val path = appLinkData?.path
+        println("DeepLink-path -- $path")
 
 
         navigation.selectedItemId = savedInstanceState?.getInt("index", R.id.navigation_home) ?: R.id.navigation_home

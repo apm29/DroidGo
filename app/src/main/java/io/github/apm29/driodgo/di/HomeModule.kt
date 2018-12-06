@@ -7,9 +7,11 @@ import dagger.Module
 import dagger.Provides
 import io.github.apm29.core.arch.IOSensitive
 import io.github.apm29.driodgo.anno.ActivityScope
+import io.github.apm29.driodgo.model.artifact.bean.CardListItem
 import io.github.apm29.driodgo.model.artifact.repository.ArtifactRepository
 import io.github.apm29.driodgo.model.artifact.db.ArtifactCardDao
 import io.github.apm29.driodgo.model.artifact.db.ArtifactCardDataBase
+import io.github.apm29.driodgo.ui.home.CardAdapter
 import io.github.apm29.driodgo.ui.home.CardStackFragment
 import io.github.apm29.driodgo.vm.HomeViewModel
 import javax.inject.Inject
@@ -31,6 +33,20 @@ class HomeModule(private val cardStackFragment: CardStackFragment) {
     @ActivityScope
     fun provideIO(): IOSensitive {
         return cardStackFragment.io
+    }
+
+
+
+    @Provides
+    @ActivityScope
+    fun provideCardAdapter(initData:MutableList<CardListItem>):CardAdapter{
+        return CardAdapter(cardStackFragment.requireContext(),initData)
+    }
+
+    @Provides
+    @ActivityScope
+    fun provideInitData():MutableList<CardListItem>{
+        return mutableListOf()
     }
 
 

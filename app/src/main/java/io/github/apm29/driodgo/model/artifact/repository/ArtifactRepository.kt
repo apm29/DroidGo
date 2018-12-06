@@ -5,6 +5,7 @@ import io.github.apm29.core.arch.IOSensitive
 import io.github.apm29.core.utils.Event
 import io.github.apm29.core.utils.autoThreadSwitch
 import io.github.apm29.core.utils.subscribeAuto
+import io.github.apm29.driodgo.model.artifact.api.ArtifactService
 import io.github.apm29.driodgo.model.artifact.bean.CardListItem
 import io.github.apm29.driodgo.model.artifact.bean.MiniImage
 import io.github.apm29.driodgo.model.artifact.db.ArtifactCardDao
@@ -60,7 +61,6 @@ class ArtifactRepository @Inject constructor(
                     artifactItems.value = it.map {
                         it.cardListItem
                     }
-                    io.loading.value = Event(false)
                 } else {
                     doFetchArtifact(artifactItems, io)
                 }
@@ -73,7 +73,4 @@ class ArtifactRepository @Inject constructor(
         )
     }
 
-    fun getImage(id: Int): Single<MiniImage> {
-        return artifactCardDao.getCardRefImage(id)
-    }
 }
