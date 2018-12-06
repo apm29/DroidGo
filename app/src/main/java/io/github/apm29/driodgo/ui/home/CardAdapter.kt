@@ -1,5 +1,6 @@
 package io.github.apm29.driodgo.ui.home
 
+import android.animation.ValueAnimator
 import android.app.Activity
 import android.app.ActivityOptions
 import android.app.SharedElementCallback
@@ -22,6 +23,7 @@ import com.bumptech.glide.RequestBuilder
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import io.github.apm29.core.utils.glide.GlideApp
+import io.github.apm29.core.utils.startRotate
 import io.github.apm29.driodgo.R
 import io.github.apm29.driodgo.model.artifact.bean.CardListItem
 import io.github.apm29.driodgo.model.artifact.bean.CardReference
@@ -49,10 +51,8 @@ class CardAdapter(
     }
 
     sealed class ItemPayLoad {
-        object Pressed : ItemPayLoad()
-        object Up : ItemPayLoad()
         object Expand : ItemPayLoad()
-        object Collapse : ItemPayLoad()
+        object ExpandALL : ItemPayLoad()
     }
 
     private val layoutInflater = LayoutInflater.from(context)
@@ -112,16 +112,15 @@ class CardAdapter(
             super.onBindViewHolder(holder, position, payloads)
         } else {
             val expand = payloads.contains(ItemPayLoad.Expand)
-            val collapse = payloads.contains(ItemPayLoad.Collapse)
+            val expandAll = payloads.contains(ItemPayLoad.ExpandALL)
             val cardListItem = getFilteredData()[position]
-            if (expand) {
-                holder.grpCollapsed.visibility = View.GONE
-                holder.grpExpand.visibility = View.VISIBLE
+            if (expand || expandAll) {
+                holder.grpCollapsed.visibility = if (!cardListItem.isExpand) View.VISIBLE else View.GONE
+                holder.grpExpand.visibility = if (cardListItem.isExpand) View.VISIBLE else View.GONE
                 holder.cardStack.setCardBackgroundColor(cardListItem.getColor(context))
-            } else if (collapse) {
-                holder.grpCollapsed.visibility = View.VISIBLE
-                holder.grpExpand.visibility = View.GONE
-                holder.cardStack.setCardBackgroundColor(cardListItem.getColor(context))
+            }
+            if (expandAll) {
+                holder.actionExpand.rotation = if (cardListItem.isExpand) 180f else 0f
             }
         }
     }
@@ -132,7 +131,7 @@ class CardAdapter(
 
 
         with(holder) {
-
+            actionExpand.rotation = if (cardListItem.isExpand) 180f else 0f
             cardStack.setCardBackgroundColor(cardListItem.getColor(context))
 
             grpCollapsed.visibility = if (!cardListItem.isExpand) View.VISIBLE else View.GONE
@@ -176,19 +175,10 @@ class CardAdapter(
 
             actionExpand.setOnClickListener {
                 cardListItem.isExpand = !cardListItem.isExpand
-                actionExpand.animation = RotateAnimation(
-                    if (!cardListItem.isExpand) 0f else 180f,
-                    if (!cardListItem.isExpand) 180f else 0f,
-                    RotateAnimation.RELATIVE_TO_SELF,
-                    0.5f,
-                    RotateAnimation.RELATIVE_TO_SELF,
-                    0.5f
-                ).apply {
-                    fillAfter = true
-                    duration = 400
-                }
-                actionExpand.animate()
-                notifyItemChanged(position, if (cardListItem.isExpand) ItemPayLoad.Expand else ItemPayLoad.Collapse)
+                actionExpand.startRotate(
+                    if (cardListItem.isExpand) 0f else -180f
+                )
+                notifyItemChanged(position, ItemPayLoad.Expand)
             }
             largeImage.setOnClickListener {
                 if (context is Activity) {
@@ -218,6 +208,22 @@ class CardAdapter(
 
     private fun defaultFilter(card: CardListItem) =
         !card.is_included
+
+    private var allExpanded = true
+
+    fun expandAll() {
+        allExpanded = !allExpanded
+
+        cardList.forEach {
+            it.isExpand = allExpanded
+        }
+
+        notifyItemRangeChanged(
+            0,
+            getFilteredData().size,
+            ItemPayLoad.ExpandALL
+        )
+    }
 
     /**
      * 包含的skill

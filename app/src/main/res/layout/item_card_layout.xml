@@ -124,7 +124,6 @@
                 />
 
         <ImageView
-                android:rotation="180"
                 android:id="@+id/actionExpand"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
