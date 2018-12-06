@@ -9,6 +9,7 @@ import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
 import androidx.cardview.widget.CardView
 import androidx.constraintlayout.widget.Group
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -118,11 +119,22 @@ class CardStackFragment : BaseFragment() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-        if (item?.itemId == R.id.menu_refresh) {
-            loadCardData(reload = true)
-            return true
+        return when {
+            item?.itemId == R.id.menu_refresh -> {
+                loadCardData(reload = true)
+                true
+            }
+            item?.itemId == R.id.menu_expand -> {
+                item.isChecked = !item.isChecked
+                item.icon = ContextCompat.getDrawable(
+                    requireContext(),
+                    if (item.isChecked) R.drawable.ic_action_all_collapse else R.drawable.ic_action_all_expand
+                )
+                cardAdapter.expandAll()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
         }
-        return super.onOptionsItemSelected(item)
     }
 
 }

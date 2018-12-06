@@ -219,6 +219,22 @@ class CardAdapter(
     private fun defaultFilter(card: CardListItem) =
         !card.is_included
 
+    private var allExpanded = true
+
+    fun expandAll() {
+        allExpanded = !allExpanded
+
+        cardList.forEach {
+            it.isExpand = allExpanded
+        }
+
+        notifyItemRangeChanged(
+            0,
+            getFilteredData().size,
+            if (allExpanded) ItemPayLoad.Expand else ItemPayLoad.Collapse
+        )
+    }
+
     /**
      * 包含的skill
      */
