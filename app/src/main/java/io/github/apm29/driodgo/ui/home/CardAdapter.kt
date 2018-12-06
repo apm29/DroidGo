@@ -51,6 +51,7 @@ class CardAdapter(
 
     sealed class ItemPayLoad {
         object Expand : ItemPayLoad()
+        object ExpandALL : ItemPayLoad()
     }
 
     private val layoutInflater = LayoutInflater.from(context)
@@ -110,8 +111,14 @@ class CardAdapter(
             super.onBindViewHolder(holder, position, payloads)
         } else {
             val expand = payloads.contains(ItemPayLoad.Expand)
+            val expandAll = payloads.contains(ItemPayLoad.ExpandALL)
             val cardListItem = getFilteredData()[position]
             if (expand) {
+                holder.grpCollapsed.visibility = if (!cardListItem.isExpand) View.VISIBLE else View.GONE
+                holder.grpExpand.visibility = if (cardListItem.isExpand) View.VISIBLE else View.GONE
+                holder.cardStack.setCardBackgroundColor(cardListItem.getColor(context))
+            }
+            if (expandAll){
                 holder.grpCollapsed.visibility = if (!cardListItem.isExpand) View.VISIBLE else View.GONE
                 holder.grpExpand.visibility = if (cardListItem.isExpand) View.VISIBLE else View.GONE
                 holder.cardStack.setCardBackgroundColor(cardListItem.getColor(context))
@@ -224,7 +231,7 @@ class CardAdapter(
         notifyItemRangeChanged(
             0,
             getFilteredData().size,
-            ItemPayLoad.Expand
+            ItemPayLoad.ExpandALL
         )
     }
 
