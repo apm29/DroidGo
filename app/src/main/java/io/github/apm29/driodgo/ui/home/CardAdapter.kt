@@ -1,5 +1,6 @@
 package io.github.apm29.driodgo.ui.home
 
+import android.animation.ValueAnimator
 import android.app.Activity
 import android.app.ActivityOptions
 import android.app.SharedElementCallback
@@ -49,10 +50,7 @@ class CardAdapter(
     }
 
     sealed class ItemPayLoad {
-        object Pressed : ItemPayLoad()
-        object Up : ItemPayLoad()
         object Expand : ItemPayLoad()
-        object Collapse : ItemPayLoad()
     }
 
     private val layoutInflater = LayoutInflater.from(context)
@@ -112,16 +110,12 @@ class CardAdapter(
             super.onBindViewHolder(holder, position, payloads)
         } else {
             val expand = payloads.contains(ItemPayLoad.Expand)
-            val collapse = payloads.contains(ItemPayLoad.Collapse)
             val cardListItem = getFilteredData()[position]
             if (expand) {
-                holder.grpCollapsed.visibility = View.GONE
-                holder.grpExpand.visibility = View.VISIBLE
+                holder.grpCollapsed.visibility = if (!cardListItem.isExpand) View.VISIBLE else View.GONE
+                holder.grpExpand.visibility = if (cardListItem.isExpand) View.VISIBLE else View.GONE
                 holder.cardStack.setCardBackgroundColor(cardListItem.getColor(context))
-            } else if (collapse) {
-                holder.grpCollapsed.visibility = View.VISIBLE
-                holder.grpExpand.visibility = View.GONE
-                holder.cardStack.setCardBackgroundColor(cardListItem.getColor(context))
+                holder.actionExpand.rotation = if (cardListItem.isExpand) 180f else 0f
             }
         }
     }
@@ -132,7 +126,7 @@ class CardAdapter(
 
 
         with(holder) {
-
+            actionExpand.rotation = if (cardListItem.isExpand) 180f else 0f
             cardStack.setCardBackgroundColor(cardListItem.getColor(context))
 
             grpCollapsed.visibility = if (!cardListItem.isExpand) View.VISIBLE else View.GONE
@@ -176,19 +170,18 @@ class CardAdapter(
 
             actionExpand.setOnClickListener {
                 cardListItem.isExpand = !cardListItem.isExpand
-                actionExpand.animation = RotateAnimation(
-                    if (!cardListItem.isExpand) 0f else 180f,
-                    if (!cardListItem.isExpand) 180f else 0f,
-                    RotateAnimation.RELATIVE_TO_SELF,
-                    0.5f,
-                    RotateAnimation.RELATIVE_TO_SELF,
-                    0.5f
-                ).apply {
-                    fillAfter = true
+                val animator = ValueAnimator().apply {
+                    setFloatValues(1f)
                     duration = 400
                 }
-                actionExpand.animate()
-                notifyItemChanged(position, if (cardListItem.isExpand) ItemPayLoad.Expand else ItemPayLoad.Collapse)
+                val startDegree = if (cardListItem.isExpand) 0f else -180f
+                animator.addUpdateListener {
+                    val fraction = it.animatedFraction
+                    actionExpand.rotation = startDegree + 180f * fraction
+                }
+                animator.start()
+
+                notifyItemChanged(position, ItemPayLoad.Expand)
             }
             largeImage.setOnClickListener {
                 if (context is Activity) {
@@ -231,7 +224,7 @@ class CardAdapter(
         notifyItemRangeChanged(
             0,
             getFilteredData().size,
-            if (allExpanded) ItemPayLoad.Expand else ItemPayLoad.Collapse
+            ItemPayLoad.Expand
         )
     }
 
