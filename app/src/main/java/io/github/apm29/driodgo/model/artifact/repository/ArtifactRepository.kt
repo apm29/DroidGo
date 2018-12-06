@@ -42,7 +42,7 @@ class ArtifactRepository @Inject constructor(
                 artifactCardDao.updateAfter()
                     .autoThreadSwitch()
             }
-            .subscribeAuto(io) {
+            .subscribeAuto(io,"更新数据库..") {
                 artifactItems.value = it.map {
                     it.cardListItem
                 }
@@ -56,7 +56,7 @@ class ArtifactRepository @Inject constructor(
     ) {
         artifactCardDao.getCardAll()
             .autoThreadSwitch()
-            .subscribeAuto(io) {
+            .subscribeAuto(io,"获取Artifact数据..") {
                 if (it.isNotEmpty() && !reload) {
                     artifactItems.value = it.map {
                         it.cardListItem

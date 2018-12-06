@@ -27,6 +27,9 @@ import javax.inject.Inject
 
 
 class CardStackFragment : BaseFragment() {
+    override fun layoutRes(savedInstanceState: Bundle?): Int {
+        return R.layout.fragment_card_stack
+    }
 
     @Inject
     lateinit var homeViewModel: HomeViewModel
@@ -46,18 +49,13 @@ class CardStackFragment : BaseFragment() {
         homeViewModel.artifactItems.observe(this, Observer {
             cardAdapter.setCard(it)
         })
-    }
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-
-        val inflated = layoutInflater.inflate(R.layout.fragment_card_stack, container, false)
-        val toolbar = inflated.findViewById<Toolbar?>(R.id.toolbar)
-        (requireActivity() as? AppCompatActivity)?.setSupportActionBar(toolbar)
         setHasOptionsMenu(true)
-        return inflated
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view,savedInstanceState)
+        val toolbar = view.findViewById<Toolbar?>(R.id.toolbar)
+        (requireActivity() as? AppCompatActivity)?.setSupportActionBar(toolbar)
         val searchView = view.findViewById<SearchView>(R.id.searchView)
         searchView.visibility = View.VISIBLE
         searchView.queryHint = getString(R.string.hint_input_hero_name)

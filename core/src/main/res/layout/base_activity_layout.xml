@@ -14,12 +14,11 @@
             android:id="@+id/normalStub"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout="@layout/loading_layout"
             />
     <ViewStub
             android:id="@+id/loadingStub"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout="@layout/loading_layout"
+            android:layout="@layout/activity_loading_layout"
             />
 </FrameLayout>
