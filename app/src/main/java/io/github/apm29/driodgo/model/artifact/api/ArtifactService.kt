@@ -1,4 +1,4 @@
-package io.github.apm29.driodgo.model.artifact.repository
+package io.github.apm29.driodgo.model.artifact.api
 
 import io.github.apm29.driodgo.model.artifact.bean.Artifact
 import io.github.apm29.driodgo.model.artifact.bean.ArtifactUri

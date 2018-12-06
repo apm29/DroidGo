@@ -1,53 +1,91 @@
 package io.github.apm29.driodgo.ui.home
 
+import android.app.Activity
+import android.app.ActivityOptions
+import android.app.SharedElementCallback
 import android.content.Context
+import android.content.Intent
+import android.graphics.drawable.Drawable
+import android.util.Pair
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.RotateAnimation
 import android.widget.ImageView
 import androidx.core.text.HtmlCompat
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.ListPreloader
+import com.bumptech.glide.RequestBuilder
 import com.bumptech.glide.load.engine.DiskCacheStrategy
-import io.github.apm29.core.utils.GlideApp
-import io.github.apm29.core.utils.autoThreadSwitch
-import io.github.apm29.core.utils.subscribeAuto
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
+import io.github.apm29.core.utils.glide.GlideApp
 import io.github.apm29.driodgo.R
-import io.github.apm29.driodgo.model.artifact.CardType
 import io.github.apm29.driodgo.model.artifact.bean.CardListItem
 import io.github.apm29.driodgo.model.artifact.bean.CardReference
-import io.github.apm29.driodgo.vm.HomeViewModel
+import io.github.apm29.driodgo.model.artifact.repository.CardDiffer
+import java.util.*
 
 class CardAdapter(
-    context: Context,
+    val context: Context,
     private val cardList: MutableList<CardListItem>
 ) :
-    RecyclerView.Adapter<CardStackFragment.VH>() {
+    RecyclerView.Adapter<CardStackFragment.VH>()
+    , ListPreloader.PreloadModelProvider<CardListItem> {
 
 
-    private val displayMetrics = context.resources.displayMetrics
-    private val density = displayMetrics.density
-    private val widthPixels = displayMetrics.widthPixels
-    private val imageWidth = ((widthPixels * 1f - 48 * density) / 2).toInt()
-    private val imageHeight = (imageWidth * 16f / 9f).toInt()
+    override fun getPreloadItems(position: Int): MutableList<CardListItem> {
+        return Collections.singletonList(cardList[position])
+    }
+
+    override fun getPreloadRequestBuilder(item: CardListItem): RequestBuilder<Drawable>? {
+        return GlideApp.with(context)
+            .load(item.large_image?.schinese)
+            .transition(DrawableTransitionOptions.withCrossFade())
+            .diskCacheStrategy(DiskCacheStrategy.ALL)
+
+    }
+
+    sealed class ItemPayLoad {
+        object Pressed : ItemPayLoad()
+        object Up : ItemPayLoad()
+        object Expand : ItemPayLoad()
+        object Collapse : ItemPayLoad()
+    }
+
     private val layoutInflater = LayoutInflater.from(context)
 
     private var _cardFilter: MutableMap<FilterTag, (CardListItem) -> Boolean> = mutableMapOf()
 
     fun setCard(data: List<CardListItem>) {
-        val size = cardList.size
+        val cardDiff = DiffUtil.calculateDiff(
+            CardDiffer(
+                cardList, data
+            )
+        )
         cardList.clear()
-        notifyItemRangeRemoved(0, size)
         cardList.addAll(data)
-        notifyItemRangeInserted(0, data.size)
+        cardDiff.dispatchUpdatesTo(this)
     }
 
     fun addCardFilter(tag: FilterTag, filter: (CardListItem) -> Boolean) {
+        val oldItem = getFilteredData()
         _cardFilter[tag] = filter
+        val newItem = getFilteredData()
+        val cardDiff = DiffUtil.calculateDiff(
+            CardDiffer(
+                oldItem, newItem
+            )
+        )
+        cardDiff.dispatchUpdatesTo(this)
     }
 
     fun removeCardFilter(tag: FilterTag): Boolean {
-        return _cardFilter.remove(tag) != null
+        val success = _cardFilter.remove(tag) != null
+        notifyDataSetChanged()
+        return success
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CardStackFragment.VH {
@@ -56,65 +94,133 @@ class CardAdapter(
     }
 
     override fun getItemCount(): Int {
+        return getFilteredData().size
+    }
+
+    private fun getFilteredData(): List<CardListItem> {
         return cardList.filter { card ->
             defaultFilter(card)
         }.filter { card ->
             _cardFilter.all {
                 it.value(card)
             }
-        }.size
+        }
+    }
+
+    override fun onBindViewHolder(holder: CardStackFragment.VH, position: Int, payloads: MutableList<Any>) {
+        if (payloads.isEmpty()) {
+            super.onBindViewHolder(holder, position, payloads)
+        } else {
+            val expand = payloads.contains(ItemPayLoad.Expand)
+            val collapse = payloads.contains(ItemPayLoad.Collapse)
+            val cardListItem = getFilteredData()[position]
+            if (expand) {
+                holder.grpCollapsed.visibility = View.GONE
+                holder.grpExpand.visibility = View.VISIBLE
+                holder.cardStack.setCardBackgroundColor(cardListItem.getColor(context))
+            } else if (collapse) {
+                holder.grpCollapsed.visibility = View.VISIBLE
+                holder.grpExpand.visibility = View.GONE
+                holder.cardStack.setCardBackgroundColor(cardListItem.getColor(context))
+            }
+        }
     }
 
     override fun onBindViewHolder(holder: CardStackFragment.VH, position: Int) {
-        val cardListItem = cardList.filter { card ->
-            defaultFilter(card)
-        }.filter { card ->
-            _cardFilter.all {
-                it.value(card)
-            }
-        }[holder.adapterPosition]
+        val filteredData = getFilteredData()
+        val cardListItem = filteredData[position]
+
 
         with(holder) {
-            largeImage?.let {
-                GlideApp.with(itemView.context)
-                    .load(cardListItem.large_image?.schinese)
-                    .diskCacheStrategy(DiskCacheStrategy.ALL)
-                    .into(largeImage)
-            }
 
-            textName?.let {
-                textName.text = cardListItem.card_name?.schinese
-            }
-            textAbility?.let {
-                textAbility.text = HtmlCompat.fromHtml(
-                    cardListItem.card_text?.schinese ?: "-",
-                    HtmlCompat.FROM_HTML_OPTION_USE_CSS_COLORS
-                )
-            }
+            cardStack.setCardBackgroundColor(cardListItem.getColor(context))
 
-            imageIncludes?.let {
-                imageIncludes.isNestedScrollingEnabled = false
-                imageIncludes.isEnabled = false
-                if (cardListItem.references?.isNotEmpty() == true) {
-                    val id = cardListItem.references
-                    imageIncludes.layoutManager = object :LinearLayoutManager(it.context, LinearLayoutManager.HORIZONTAL, true){
-                        override fun canScrollHorizontally(): Boolean {
-                            return false
+            grpCollapsed.visibility = if (!cardListItem.isExpand) View.VISIBLE else View.GONE
+            grpExpand.visibility = if (cardListItem.isExpand) View.VISIBLE else View.GONE
+
+            GlideApp.with(itemView.context)
+                .load(cardListItem.large_image?.schinese)
+                .transition(DrawableTransitionOptions.withCrossFade())
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .into(largeImage)
+
+
+            textName.text = cardListItem.card_name?.schinese
+            textAbility.text = HtmlCompat.fromHtml(
+                cardListItem.card_text?.schinese ?: "",
+                HtmlCompat.FROM_HTML_OPTION_USE_CSS_COLORS
+            )
+
+            imageIncludes.isNestedScrollingEnabled = false
+            imageIncludes.isEnabled = false
+            if (cardListItem.references?.isNotEmpty() == true) {
+                val id = cardListItem.references
+                imageIncludes.layoutManager =
+                        object : LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, true) {
+                            override fun canScrollHorizontally(): Boolean {
+                                return false
+                            }
                         }
-                    }
-                    imageIncludes.adapter = SkillAdapter(id)
-                } else {
-                    imageIncludes.adapter = null
+                imageIncludes.adapter = SkillAdapter(id)
+            } else {
+                imageIncludes.adapter = null
+            }
+
+            GlideApp.with(itemView.context)
+                .load(cardListItem.mini_image?.default)
+                .transition(DrawableTransitionOptions.withCrossFade())
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .into(collapsedImage)
+
+            textSmallName.text = cardListItem.card_name?.schinese
+
+            actionExpand.setOnClickListener {
+                cardListItem.isExpand = !cardListItem.isExpand
+                actionExpand.animation = RotateAnimation(
+                    if (!cardListItem.isExpand) 0f else 180f,
+                    if (!cardListItem.isExpand) 180f else 0f,
+                    RotateAnimation.RELATIVE_TO_SELF,
+                    0.5f,
+                    RotateAnimation.RELATIVE_TO_SELF,
+                    0.5f
+                ).apply {
+                    fillAfter = true
+                    duration = 400
+                }
+                actionExpand.animate()
+                notifyItemChanged(position, if (cardListItem.isExpand) ItemPayLoad.Expand else ItemPayLoad.Collapse)
+            }
+            largeImage.setOnClickListener {
+                if (context is Activity) {
+                    context.setExitSharedElementCallback(object : SharedElementCallback() {
+                        override fun onSharedElementStart(
+                            sharedElementNames: List<String>,
+                            sharedElements: List<View>,
+                            sharedElementSnapshots: List<View>
+                        ) {
+                            context.setExitSharedElementCallback(null)
+                        }
+                    })
+
+                    val options = ActivityOptions.makeSceneTransitionAnimation(
+                        context,
+                        Pair(largeImage, "largeImage")
+                    )
+                    val intent = Intent(context, CardDetailActivity::class.java)
+                    context.startActivity(intent, options.toBundle())
+
+                    notifyItemChanged(position, 1)
                 }
             }
         }
     }
 
+
     private fun defaultFilter(card: CardListItem) =
         !card.is_included
 
     /**
-     * 包含的能力
+     * 包含的skill
      */
     class SkillVH(view: View) : RecyclerView.ViewHolder(view) {
         val image: ImageView = view.findViewById(R.id.image)

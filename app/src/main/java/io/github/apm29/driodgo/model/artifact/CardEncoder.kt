@@ -14,15 +14,11 @@ data class Deck(
     val name: String
 )
 
-open class Card(
+data class Card(
     val id: Int,
     val turn: Int,
     val count: Int
-) {
-    override fun toString(): String {
-        return "Card{ id =$id,turn = $turn,count = $count}\n"
-    }
-}
+)
 
 private const val mCurrentVersion = 2
 private const val PREFIX = "ADC"

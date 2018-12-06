@@ -4,6 +4,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
         >
     <com.google.android.material.appbar.CollapsingToolbarLayout
             android:layout_width="match_parent"
@@ -15,6 +16,14 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 >
+            <androidx.appcompat.widget.SearchView
+                    android:layout_gravity="end"
+                    android:id="@+id/searchView"
+                    android:visibility="gone"
+                    tools:visibility="visible"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    />
 
         </androidx.appcompat.widget.Toolbar>
     </com.google.android.material.appbar.CollapsingToolbarLayout>

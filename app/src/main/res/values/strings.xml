@@ -1,7 +1,11 @@
 <resources>
-    <string name="app_name">DriodGo</string>
+    <string name="app_name">ArtifactGo</string>
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
     <string name="menu_reload">重新加载</string>
+    <string name="menu_search">搜索</string>
+    <string name="hint_input_hero_name">请输入英雄名称</string>
+
+    <string name="transition_name_image_card">largeImage</string>
 </resources>

@@ -18,10 +18,11 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import io.github.apm29.core.R
 import io.github.apm29.core.arch.dagger.CoreComponent
+import io.github.apm29.core.utils.Event
 
-abstract class BaseActivity : AppCompatActivity(), BackPressSensitive, ConnectivitySensitive {
+abstract class BaseActivity : AppCompatActivity(), BackPressSensitive, ConnectivitySensitive, IOObservable {
 
-    val mHandler:Handler = Handler()
+    val mHandler: Handler = Handler()
 
     override var handleBackPress: HandleBackPress? = null
 
@@ -33,7 +34,7 @@ abstract class BaseActivity : AppCompatActivity(), BackPressSensitive, Connectiv
         droidApp().mCoreComponent
     }
 
-    val io: IOSensitiveViewModel by lazy {
+    override val ioSensitive: IOSensitive by lazy {
         ViewModelProviders.of(this).get(BaseActivityViewModel::class.java)
     }
 
@@ -42,18 +43,18 @@ abstract class BaseActivity : AppCompatActivity(), BackPressSensitive, Connectiv
     open var showNoConnectionView: Boolean = true
 
     private val stubNormal: ViewStub by lazy { findViewById<ViewStub>(R.id.normalStub) }
-    private val stubLoading: View by lazy { findViewById<View>(R.id.loadingStub) }
+    private val stubLoading: ViewStub by lazy { findViewById<ViewStub>(R.id.loadingStub) }
 
     private val loadingTextView: TextView by lazy {
         findViewById<TextView>(R.id.loadingText)
     }
 
-    private val progressBar:ProgressBar by lazy {
+    private val progressBar: ProgressBar by lazy {
         findViewById<ProgressBar>(R.id.loading)
     }
 
     private val stubNoConn: ViewStub by lazy { findViewById<ViewStub>(R.id.noConnectionStub) }
-    private val errorDialog :AlertDialog by lazy {
+    private val errorDialog: AlertDialog by lazy {
         AlertDialog.Builder(this)
             .setTitle(getString(R.string.error_dialog_title))
             .create()
@@ -64,44 +65,49 @@ abstract class BaseActivity : AppCompatActivity(), BackPressSensitive, Connectiv
         super.onCreate(savedInstanceState)
         super.setContentView(R.layout.base_content_layout)
 
-        if (showLoadingView) {
-            io.loading.observe(this, Observer {
-                it.getDataIfNotConsumed { loading ->
-                    println("loading = $loading")
-                    if (loading) {
-                        showLoadingView(io.loadingMessage)
-                    } else {
-                        showNormalView()
-                    }
-                }
+        observeIO()
+        observeConnectivity()
+    }
 
-            })
-        }
-        if (showErrorDialog) {
-            io.message.observe(this, Observer {
-                it.getDataIfNotConsumed { message ->
-                    errorDialog.setMessage(message)
-                    errorDialog.show()
-                }
-
-            })
-        }
+    private fun observeConnectivity() {
         if (showNoConnectionView) {
             checkConnectivity()
+        }
+    }
+
+
+    private val loadingObserver = Observer<Event<Boolean>> {
+        it.getDataIfNotConsumed { loading ->
+            if (loading) {
+                showLoadingView(ioSensitive.loadingMessage)
+            } else {
+                showNormalView()
+            }
+        }
+
+    }
+    private val errorObserver = Observer<Event<String>> {
+        it.getDataIfNotConsumed { message ->
+            errorDialog.setMessage(message)
+            errorDialog.show()
+        }
+
+    }
+
+    private fun observeIO() {
+        if (showLoadingView) {
+            ioSensitive.loading.removeObserver(loadingObserver)
+            ioSensitive.loading.observe(this, loadingObserver)
+        }
+        if (showErrorDialog) {
+            ioSensitive.message.removeObserver(errorObserver)
+            ioSensitive.message.observe(this, errorObserver)
         }
     }
 
     override fun setContentView(layoutResID: Int) {
         stubNormal.layoutResource = layoutResID
         stubNormal.inflate()
-    }
-
-    override fun onStart() {
-        super.onStart()
-    }
-
-    override fun onResume() {
-        super.onResume()
     }
 
     override var connected: Boolean = true
@@ -159,23 +165,29 @@ abstract class BaseActivity : AppCompatActivity(), BackPressSensitive, Connectiv
     }
 
     protected open fun showLoadingView(loadingMessage: String? = getString(R.string.loading_text)) {
-        stubNoConn.visibility = View.GONE
-        stubNormal.visibility = View.VISIBLE
-        stubLoading.visibility = View.VISIBLE
+        mHandler.post {
+            stubNoConn.visibility = View.GONE
+            stubLoading.visibility = View.VISIBLE
+            stubNormal.visibility = View.VISIBLE
+        }
         loadingMessage?.apply {
             loadingTextView.text = this
         }
     }
 
-    protected open fun showNormalView(delay:Long = 500) {
-        stubLoading.visibility = View.GONE
-        stubNoConn.visibility = View.GONE
-        stubNormal.visibility = View.VISIBLE
+    protected open fun showNormalView(delay: Long = 500) {
+        mHandler.postDelayed({
+            stubLoading.visibility = View.GONE
+            stubNoConn.visibility = View.GONE
+            stubNormal.visibility = View.VISIBLE
+        }, delay)
     }
 
     protected open fun showNoConnection() {
-        stubLoading.visibility = View.GONE
-        stubNoConn.visibility = View.VISIBLE
-        stubNormal.visibility = View.GONE
+        mHandler.post {
+            stubLoading.visibility = View.GONE
+            stubNoConn.visibility = View.VISIBLE
+            stubNormal.visibility = View.GONE
+        }
     }
 }

@@ -4,8 +4,13 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import io.github.apm29.core.utils.Event
 import io.reactivex.disposables.CompositeDisposable
+import java.util.concurrent.atomic.AtomicInteger
 
 open class IOSensitiveViewModel: ViewModel(), IOSensitive {
+
+
+    @Volatile
+    override var signalStrength: AtomicInteger = AtomicInteger(0)
 
     override var loadingMessage: String? = null
 

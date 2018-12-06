@@ -13,7 +13,6 @@ class HomeViewModel @Inject constructor(
     private val artifactRepository: ArtifactRepository,val io: IOSensitive
 ):ViewModel() {
 
-
     val artifactItems:MutableLiveData<List<CardListItem>> = MutableLiveData()
 
 
@@ -21,10 +20,6 @@ class HomeViewModel @Inject constructor(
         artifactRepository.loadCard(
             artifactItems,io,reload
         )
-    }
-
-    fun loadImageByRefId(id:Int): Single<MiniImage> {
-        return artifactRepository.getImage(id)
     }
 
 }

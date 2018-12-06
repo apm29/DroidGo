@@ -18,22 +18,16 @@ fun <T> Single<T>.subscribeAuto(ioSensitive: IOSensitive? = null, onSuccess: (T)
     object : SingleObserver<T> {
         override fun onSuccess(t: T) {
             onSuccess(t)
-            if (ioSensitive != null) {
-                ioSensitive.loading.value = Event(false)
-            }
+            ioSensitive?.decreaseLoadingSignal()
         }
 
         override fun onSubscribe(d: Disposable) {
-            if (ioSensitive != null) {
-                ioSensitive.loading.value = Event(true)
-            }
+            ioSensitive?.increaseLoadingSignal()
         }
 
         override fun onError(e: Throwable) {
-            if (ioSensitive != null) {
-                ioSensitive.loading.value = Event(false)
-                ioSensitive.message.value = Event(e.message.toString())
-            }
+            ioSensitive?.decreaseLoadingSignal()
+            ioSensitive?.sendMessage(e.localizedMessage.toString())
             e.printStackTrace()
         }
 

@@ -4,7 +4,7 @@ import dagger.Module
 import dagger.Provides
 import io.github.apm29.driodgo.anno.ActivityScope
 import io.github.apm29.driodgo.anno.ArtifactAffair
-import io.github.apm29.driodgo.model.artifact.repository.ArtifactService
+import io.github.apm29.driodgo.model.artifact.api.ArtifactService
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
