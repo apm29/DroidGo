@@ -45,6 +45,7 @@ fun Int.toPx(context: Context): Int {
  * @param degreeInit 初始角度
  * @param rotateDegree 需要旋转多少
  * @param durationAnim 动画持续时间
+ * @return 如果在动画中就返回false
  */
 fun View.startRotate(degreeInit: Float = 0f, rotateDegree: Float = 180f, durationAnim: Long = 400): Boolean {
     if (rotateAnimator.isRunning) {
@@ -67,6 +68,7 @@ fun View.startRotate(degreeInit: Float = 0f, rotateDegree: Float = 180f, duratio
 
 /**
  * View 缩小动画
+ * @return 如果在动画中就返回false
  */
 fun View.shrink(durationAnim: Long = 400):Boolean {
     if (shrinkAndGrowAnimator.isRunning) {
@@ -93,6 +95,7 @@ fun View.shrink(durationAnim: Long = 400):Boolean {
 /**
  * view 生长动画
  * 需要先设置expectedHeight,可以通过ViewTreeObserve获取布局后的高度,赋值给扩展属性expectedHeight
+ * @return  如果在动画中就返回false
  */
 fun View.grow(durationAnim: Long = 400): Boolean {
     if (shrinkAndGrowAnimator.isRunning) {
@@ -130,7 +133,7 @@ val View.rotateAnimator: ValueAnimator by lazy {
 
 
 /**
- * view的扩展属性,用于缩小生长动画
+ * view的扩展属性,用于shrink/grow动画
  */
 val View.shrinkAndGrowAnimator: ValueAnimator by lazy {
     ValueAnimator().apply {
@@ -138,6 +141,9 @@ val View.shrinkAndGrowAnimator: ValueAnimator by lazy {
         duration = 400
     }
 }
+/**
+ * 扩展属性,用于grow动画预设最大生长高度
+ */
 var View.expectedHeight: Int
     get() = getTag(R.id.tag_expectedHeight) as? Int ?: 0
     set(value) {
