@@ -14,10 +14,12 @@
             android:id="@+id/menu_expand"
             android:icon="@drawable/ic_action_all_collapse"
             app:showAsAction="ifRoom"
-            android:title="@string/menu_reload"/>
+            android:title="@string/menu_expand"/>
     <item
             android:id="@+id/menu_filter"
+            android:checkable="true"
+            android:checked="true"
             android:icon="@drawable/ic_action_filter"
             app:showAsAction="ifRoom"
-            android:title="@string/menu_reload"/>
+            android:title="@string/menu_filter"/>
 </menu>

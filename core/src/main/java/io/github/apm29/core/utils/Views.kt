@@ -4,6 +4,8 @@ import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.Rect
 import android.view.View
+import androidx.core.view.isVisible
+import io.github.apm29.core.R
 
 /**
  * Determines if two views intersect in the window.
@@ -34,7 +36,7 @@ fun View?.intersect(other: View?): Boolean {
 /**
  * dp -> px
  */
-fun Int.toPx(context: Context):Int{
+fun Int.toPx(context: Context): Int {
     return (context.resources.displayMetrics.density * this).toInt()
 }
 
@@ -43,23 +45,80 @@ fun Int.toPx(context: Context):Int{
  * @param degreeInit 初始角度
  * @param rotateDegree 需要旋转多少
  * @param durationAnim 动画持续时间
+ * @return 如果在动画中就返回false
  */
-fun View.startRotate(degreeInit:Float = 0f, rotateDegree:Float = 180f, durationAnim:Long = 400){
-    if (rotateAnimator.isRunning){
-        return
+fun View.startRotate(degreeInit: Float = 0f, rotateDegree: Float = 180f, durationAnim: Long = 400): Boolean {
+    if (rotateAnimator.isRunning) {
+        return false
     }
     rotateAnimator.duration = durationAnim
-    rotateAnimator.addUpdateListener (
-        object : ValueAnimator.AnimatorUpdateListener{
+    rotateAnimator.addUpdateListener(
+        object : ValueAnimator.AnimatorUpdateListener {
             override fun onAnimationUpdate(animation: ValueAnimator) {
                 val fraction = animation.animatedFraction
                 this@startRotate.rotation = degreeInit + rotateDegree * fraction
-                if (fraction == 1f){
+                if (fraction == 1f) {
                     rotateAnimator.removeUpdateListener(this)
                 }
             }
         })
     rotateAnimator.start()
+    return true
+}
+
+/**
+ * View 缩小动画
+ * @return 如果在动画中就返回false
+ */
+fun View.shrink(durationAnim: Long = 400):Boolean {
+    if (shrinkAndGrowAnimator.isRunning) {
+        return false
+    }
+    shrinkAndGrowAnimator.duration = durationAnim
+    val originHeight = measuredHeight
+    shrinkAndGrowAnimator.addUpdateListener(
+        object : ValueAnimator.AnimatorUpdateListener {
+            override fun onAnimationUpdate(animation: ValueAnimator) {
+                val fraction = animation.animatedFraction
+                this@shrink.layoutParams.height = (originHeight - originHeight * fraction).toInt()
+                requestLayout()
+                if (fraction == 1f) {
+                    visibility = View.GONE
+                    rotateAnimator.removeUpdateListener(this)
+                }
+            }
+        })
+    shrinkAndGrowAnimator.start()
+    return true
+}
+
+/**
+ * view 生长动画
+ * 需要先设置expectedHeight,可以通过ViewTreeObserve获取布局后的高度,赋值给扩展属性expectedHeight
+ * @return  如果在动画中就返回false
+ */
+fun View.grow(durationAnim: Long = 400): Boolean {
+    if (shrinkAndGrowAnimator.isRunning) {
+        return false
+    }
+    shrinkAndGrowAnimator.duration = durationAnim
+
+    shrinkAndGrowAnimator.addUpdateListener(
+        object : ValueAnimator.AnimatorUpdateListener {
+            override fun onAnimationUpdate(animation: ValueAnimator) {
+                val fraction = animation.animatedFraction
+                this@grow.layoutParams.height = (expectedHeight * fraction).toInt()
+                requestLayout()
+                if (!isVisible) {
+                    visibility = View.VISIBLE
+                }
+                if (fraction == 1f) {
+                    rotateAnimator.removeUpdateListener(this)
+                }
+            }
+        })
+    shrinkAndGrowAnimator.start()
+    return true
 }
 
 /**
@@ -71,3 +130,22 @@ val View.rotateAnimator: ValueAnimator by lazy {
         duration = 400
     }
 }
+
+
+/**
+ * view的扩展属性,用于shrink/grow动画
+ */
+val View.shrinkAndGrowAnimator: ValueAnimator by lazy {
+    ValueAnimator().apply {
+        setFloatValues(1f)
+        duration = 400
+    }
+}
+/**
+ * 扩展属性,用于grow动画预设最大生长高度
+ */
+var View.expectedHeight: Int
+    get() = getTag(R.id.tag_expectedHeight) as? Int ?: 0
+    set(value) {
+        setTag(R.id.tag_expectedHeight, value)
+    }

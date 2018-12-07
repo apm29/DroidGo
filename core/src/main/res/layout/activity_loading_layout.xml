@@ -10,27 +10,33 @@
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_height="match_parent"
         >
-
     <androidx.cardview.widget.CardView
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:tools="http://schemas.android.com/tools"
             app:contentPadding="24dp"
             app:contentPaddingLeft="36dp"
             app:contentPaddingRight="36dp"
             app:cardCornerRadius="18dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            tools:showIn="@layout/activity_loading_layout"
             >
+
         <LinearLayout
                 android:gravity="center"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 >
+
             <androidx.core.widget.ContentLoadingProgressBar
                     android:id="@+id/loading"
                     style="?android:attr/progressBarStyleLarge"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
                     />
+
             <TextView
                     android:id="@+id/loadingText"
                     android:text="@string/loading_text"

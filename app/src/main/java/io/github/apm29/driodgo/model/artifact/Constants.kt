@@ -5,40 +5,40 @@ import java.lang.IllegalArgumentException
 
 sealed class CardType(val type: String) {
 
-    class Hero : CardType("Hero")
+    object Hero : CardType("Hero")
 
-    class Creep : CardType("Creep")
+    object Creep : CardType("Creep")
 
-    class Improvement : CardType("Improvement")
+    object Improvement : CardType("Improvement")
 
     sealed class Item(val subType: String) : CardType("Item") {
 
-        class Weapon : Item("Weapon")
+        object Weapon : Item("Weapon")
 
-        class Armor : Item("Armor")
+        object Armor : Item("Armor")
 
-        class Accessory : Item("Accessory")
+        object Accessory : Item("Accessory")
 
-        class Deed : Item("Deed")
+        object Deed : Item("Deed")
 
-        class Consumable : Item("Consumable")
+        object Consumable : Item("Consumable")
     }
 
-    class Spell : CardType("Spell")
+    object Spell : CardType("Spell")
 
     companion object {
         fun getType(type: String?, subType: String?): CardType {
             return when (type) {
-                "Hero" -> Hero()
-                "Creep" -> Creep()
-                "Improvement" -> Improvement()
-                "Spell" -> Spell()
+                "Hero" -> Hero
+                "Creep" -> Creep
+                "Improvement" -> Improvement
+                "Spell" -> Spell
                 "Item" -> when (subType) {
-                    "Weapon" -> Item.Weapon()
-                    "Armor" -> Item.Armor()
-                    "Accessory" -> Item.Accessory()
-                    "Deed" -> Item.Deed()
-                    "Consumable" -> Item.Consumable()
+                    "Weapon" -> Item.Weapon
+                    "Armor" -> Item.Armor
+                    "Accessory" -> Item.Accessory
+                    "Deed" -> Item.Deed
+                    "Consumable" -> Item.Consumable
                     else -> throw IllegalArgumentException("未知卡牌类型 $type - $subType")
                 }
                 else -> throw IllegalArgumentException("未知卡牌类型 $type - $subType")

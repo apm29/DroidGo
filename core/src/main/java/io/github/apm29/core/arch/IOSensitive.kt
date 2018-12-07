@@ -43,6 +43,7 @@ interface IOSensitive {
     }
 
     private fun signalLoading(signal: Int) {
+        println("signal = $signal")
         if (signal > 0) {
             loading.value = Event(true)
         } else {

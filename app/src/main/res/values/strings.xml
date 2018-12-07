@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">ArtifactGo</string>
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>
@@ -8,4 +8,15 @@
     <string name="hint_input_hero_name">请输入英雄名称</string>
 
     <string name="transition_name_image_card">largeImage</string>
+    <string name="text_green">Green</string>
+    <string name="text_blue">Blue</string>
+    <string name="text_black">Black</string>
+    <string name="text_red">Red</string>
+    <string name="text_hero">Hero</string>
+    <string name="text_spell">Spell</string>
+    <string name="text_improvement">Improvement</string>
+    <string name="text_Item">Item</string>
+    <string name="text_creeps" tools:ignore="ExtraTranslation">Creep</string>
+    <string name="menu_filter">筛选</string>
+    <string name="menu_expand">展开</string>
 </resources>

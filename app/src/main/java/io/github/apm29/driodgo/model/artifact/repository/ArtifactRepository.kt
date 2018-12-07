@@ -17,6 +17,10 @@ class ArtifactRepository @Inject constructor(
     private val artifactService: ArtifactService,
     private val artifactCardDao: ArtifactCardDao
 ) {
+
+    /**
+     * 获取CardSet url -> 获取CardSet -> 将结果存入room -> 整理room数据 -> 返回card列表
+     */
     private fun doFetchArtifact(
         artifactItems: MutableLiveData<List<CardListItem>>,
         io: IOSensitive
@@ -42,7 +46,7 @@ class ArtifactRepository @Inject constructor(
                 artifactCardDao.updateAfter()
                     .autoThreadSwitch()
             }
-            .subscribeAuto(io) {
+            .subscribeAuto(io,"更新数据库..") {
                 artifactItems.value = it.map {
                     it.cardListItem
                 }
@@ -56,7 +60,7 @@ class ArtifactRepository @Inject constructor(
     ) {
         artifactCardDao.getCardAll()
             .autoThreadSwitch()
-            .subscribeAuto(io) {
+            .subscribeAuto(io,"获取Artifact数据..") {
                 if (it.isNotEmpty() && !reload) {
                     artifactItems.value = it.map {
                         it.cardListItem

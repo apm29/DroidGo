@@ -13,5 +13,12 @@ class ExampleUnitTest {
     @Test
     fun addition_isCorrect() {
         assertEquals(4, 2 + 2)
+
+        var color = 0b0111
+        var black = 0b1000
+
+        println("check black : ${(color or black).toString(2)}")
+        println("uncheck black : ${(color and  (black.inv())).toString(2)}")
+        println("is  black checked: ${(color and black == black)}")
     }
 }

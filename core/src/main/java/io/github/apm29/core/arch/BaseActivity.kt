@@ -22,7 +22,7 @@ import io.github.apm29.core.utils.Event
 
 abstract class BaseActivity : AppCompatActivity(), BackPressSensitive, ConnectivitySensitive, IOObservable {
 
-    val mHandler: Handler = Handler()
+    protected val mHandler: Handler = Handler()
 
     override var handleBackPress: HandleBackPress? = null
 
@@ -63,7 +63,7 @@ abstract class BaseActivity : AppCompatActivity(), BackPressSensitive, Connectiv
     @CallSuper
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        super.setContentView(R.layout.base_content_layout)
+        super.setContentView(R.layout.base_activity_layout)
 
         observeIO()
         observeConnectivity()
@@ -164,15 +164,19 @@ abstract class BaseActivity : AppCompatActivity(), BackPressSensitive, Connectiv
         }
     }
 
-    protected open fun showLoadingView(loadingMessage: String? = getString(R.string.loading_text)) {
+    protected open fun showLoadingView(loadingMessage: String?) {
         mHandler.post {
             stubNoConn.visibility = View.GONE
             stubLoading.visibility = View.VISIBLE
             stubNormal.visibility = View.VISIBLE
+
+            if (loadingMessage != null) {
+                loadingTextView.text = loadingMessage
+            } else {
+                loadingTextView.text = getString(R.string.loading_text)
+            }
         }
-        loadingMessage?.apply {
-            loadingTextView.text = this
-        }
+
     }
 
     protected open fun showNormalView(delay: Long = 500) {

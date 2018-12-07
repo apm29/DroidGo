@@ -9,7 +9,7 @@ import io.github.apm29.driodgo.model.artifact.repository.ArtifactRepository
 import io.reactivex.Single
 import javax.inject.Inject
 
-class HomeViewModel @Inject constructor(
+class CardStackViewModel @Inject constructor(
     private val artifactRepository: ArtifactRepository,val io: IOSensitive
 ):ViewModel() {
 
