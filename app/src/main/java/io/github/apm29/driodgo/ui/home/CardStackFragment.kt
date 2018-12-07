@@ -17,13 +17,17 @@ import com.bumptech.glide.integration.recyclerview.RecyclerViewPreloader
 import com.bumptech.glide.util.ViewPreloadSizeProvider
 import io.github.apm29.core.arch.BaseFragment
 import io.github.apm29.core.arch.DroidGoApp
+import io.github.apm29.core.utils.expectedHeight
+import io.github.apm29.core.utils.grow
+import io.github.apm29.core.utils.shrink
 import io.github.apm29.driodgo.R
-import io.github.apm29.driodgo.di.DaggerHomeComponent
-import io.github.apm29.driodgo.di.HomeModule
+import io.github.apm29.driodgo.di.CardStackModule
 import io.github.apm29.driodgo.model.artifact.bean.CardListItem
-import io.github.apm29.driodgo.vm.HomeViewModel
+import io.github.apm29.driodgo.vm.CardStackViewModel
 import kotlinx.android.synthetic.main.fragment_card_stack.*
 import javax.inject.Inject
+import io.github.apm29.driodgo.di.DaggerCardStackComponent
+import kotlinx.android.synthetic.main.header_card_stack_layout.*
 
 
 class CardStackFragment : BaseFragment() {
@@ -32,7 +36,7 @@ class CardStackFragment : BaseFragment() {
     }
 
     @Inject
-    lateinit var homeViewModel: HomeViewModel
+    lateinit var cardStackViewModel: CardStackViewModel
 
     @Inject
     lateinit var cardAdapter: CardAdapter
@@ -40,13 +44,13 @@ class CardStackFragment : BaseFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        DaggerHomeComponent.builder()
-            .homeModule(HomeModule(this))
+        DaggerCardStackComponent.builder()
+            .cardStackModule(CardStackModule(this))
             .coreComponent((requireActivity().application as DroidGoApp).mCoreComponent)
             .build()
             .inject(this)
 
-        homeViewModel.artifactItems.observe(this, Observer {
+        cardStackViewModel.artifactItems.observe(this, Observer {
             cardAdapter.setCard(it)
         })
         setHasOptionsMenu(true)
@@ -89,11 +93,30 @@ class CardStackFragment : BaseFragment() {
         val preLoader: ViewPreloadSizeProvider<CardListItem> = ViewPreloadSizeProvider()
         cardStack.addOnScrollListener(RecyclerViewPreloader(this, cardAdapter, preLoader, 5))
         cardStack.adapter = cardAdapter
+
+
+        cardFilter.onFilterChangeCallBack = {
+            it.forEach { entry ->
+                cardAdapter.addCardFilter(entry.key,entry.value)
+            }
+        }
+        cardFilter.viewTreeObserver.addOnGlobalLayoutListener(
+            object :ViewTreeObserver.OnGlobalLayoutListener{
+                override fun onGlobalLayout() {
+                    cardFilter.expectedHeight = cardFilter.measuredHeight
+                    cardFilter.shrink()
+                    cardFilter.viewTreeObserver.removeOnGlobalLayoutListener(this)
+                }
+
+            }
+        )
+
+
         loadCardData()
     }
 
     private fun loadCardData(reload: Boolean = false) {
-        homeViewModel.loadArtifact(reload)
+        cardStackViewModel.loadArtifact(reload)
     }
 
 
@@ -112,27 +135,60 @@ class CardStackFragment : BaseFragment() {
         val cardStack: CardView = itemView.findViewById(R.id.cardStack)
     }
 
+    private var menu:Menu? = null
+
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater?) {
         inflater?.inflate(R.menu.card_stack_menu, menu)
+        this.menu = menu
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         return when {
             item?.itemId == R.id.menu_refresh -> {
-                loadCardData(reload = true)
+                onReloadActionClicked()
                 true
             }
             item?.itemId == R.id.menu_expand -> {
-                item.isChecked = !item.isChecked
-                item.icon = ContextCompat.getDrawable(
-                    requireContext(),
-                    if (item.isChecked) R.drawable.ic_action_all_collapse else R.drawable.ic_action_all_expand
-                )
-                cardAdapter.expandAll()
+                onExpandActionClicked(item)
+                true
+            }
+            item?.itemId == R.id.menu_filter->{
+                onFilterActionClicked(item)
                 true
             }
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    private fun onFilterActionClicked(item: MenuItem) {
+
+        //cardFilter.visibility = if(item.isChecked ) View.GONE else View.VISIBLE
+        if(!item.isChecked ) {
+            if(cardFilter.shrink()){
+                item.isChecked = !item.isChecked
+            }
+        }else{
+            if(cardFilter.grow()){
+                item.isChecked = !item.isChecked
+            }
+        }
+    }
+
+    private fun onReloadActionClicked() {
+        loadCardData(reload = true)
+        //先把卡牌样式更换->expanded
+        menu?.findItem(R.id.menu_expand)?.apply {
+            onExpandActionClicked(this, true)
+        }
+    }
+
+    private fun onExpandActionClicked(item: MenuItem, expandAll:Boolean? = null) {
+        item.isChecked = expandAll?:!item.isChecked
+        item.icon = ContextCompat.getDrawable(
+            requireContext(),
+            if (item.isChecked) R.drawable.ic_action_all_collapse else R.drawable.ic_action_all_expand
+        )
+        cardAdapter.expandAll(item.isChecked)
     }
 
 }

@@ -8,7 +8,7 @@
         >
     <com.google.android.material.appbar.CollapsingToolbarLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="?attr/actionBarSize"
             app:layout_scrollFlags="scroll|enterAlways"
             >
         <androidx.appcompat.widget.Toolbar
@@ -27,5 +27,17 @@
 
         </androidx.appcompat.widget.Toolbar>
     </com.google.android.material.appbar.CollapsingToolbarLayout>
-
+    <io.github.apm29.driodgo.ui.widget.CardFilter
+            android:visibility="visible"
+            tools:visibility="visible"
+            android:paddingTop="6dp"
+            android:paddingBottom="6dp"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:id="@+id/cardFilter"
+            android:background="@color/white"
+            app:layout_scrollFlags="scroll|enterAlways"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            />
 </com.google.android.material.appbar.AppBarLayout>

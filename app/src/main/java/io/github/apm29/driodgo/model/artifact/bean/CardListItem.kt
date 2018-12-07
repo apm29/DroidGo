@@ -5,6 +5,7 @@ import android.content.res.ColorStateList
 import android.graphics.Color
 import androidx.core.content.ContextCompat
 import io.github.apm29.driodgo.R
+import io.github.apm29.driodgo.model.artifact.CardType
 
 data class CardListItem(
     val base_card_id: Int?,
@@ -51,5 +52,10 @@ data class CardListItem(
 
     @Transient
     var isExpand: Boolean = true
+
+
+    fun getType():CardType{
+        return CardType.getType(this)
+    }
 }
 

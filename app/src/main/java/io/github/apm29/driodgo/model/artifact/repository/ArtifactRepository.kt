@@ -17,6 +17,10 @@ class ArtifactRepository @Inject constructor(
     private val artifactService: ArtifactService,
     private val artifactCardDao: ArtifactCardDao
 ) {
+
+    /**
+     * 获取CardSet url -> 获取CardSet -> 将结果存入room -> 整理room数据 -> 返回card列表
+     */
     private fun doFetchArtifact(
         artifactItems: MutableLiveData<List<CardListItem>>,
         io: IOSensitive

@@ -1,6 +1,5 @@
 package io.github.apm29.driodgo.ui.home
 
-import android.animation.ValueAnimator
 import android.app.Activity
 import android.app.ActivityOptions
 import android.app.SharedElementCallback
@@ -9,10 +8,8 @@ import android.content.Intent
 import android.graphics.drawable.Drawable
 import android.util.Pair
 import android.view.LayoutInflater
-import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
-import android.view.animation.RotateAnimation
 import android.widget.ImageView
 import androidx.core.text.HtmlCompat
 import androidx.recyclerview.widget.DiffUtil
@@ -46,6 +43,7 @@ class CardAdapter(
         return GlideApp.with(context)
             .load(item.large_image?.schinese)
             .transition(DrawableTransitionOptions.withCrossFade())
+            .placeholder(R.mipmap.ic_launcher)
             .diskCacheStrategy(DiskCacheStrategy.ALL)
 
     }
@@ -140,6 +138,7 @@ class CardAdapter(
             GlideApp.with(itemView.context)
                 .load(cardListItem.large_image?.schinese)
                 .transition(DrawableTransitionOptions.withCrossFade())
+                .placeholder(R.mipmap.ic_launcher)
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .into(largeImage)
 
@@ -175,10 +174,9 @@ class CardAdapter(
 
             actionExpand.setOnClickListener {
                 cardListItem.isExpand = !cardListItem.isExpand
-                actionExpand.startRotate(
-                    if (cardListItem.isExpand) 0f else -180f
-                )
-                notifyItemChanged(position, ItemPayLoad.Expand)
+                if (actionExpand.startRotate(if (cardListItem.isExpand) 0f else -180f)) {
+                    notifyItemChanged(position, ItemPayLoad.Expand)
+                }
             }
             largeImage.setOnClickListener {
                 if (context is Activity) {
@@ -211,8 +209,8 @@ class CardAdapter(
 
     private var allExpanded = true
 
-    fun expandAll() {
-        allExpanded = !allExpanded
+    fun expandAll(expand: Boolean) {
+        allExpanded = expand
 
         cardList.forEach {
             it.isExpand = allExpanded

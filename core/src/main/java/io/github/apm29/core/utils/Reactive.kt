@@ -19,13 +19,11 @@ fun <T> Single<T>.subscribeAuto(ioSensitive: IOSensitive? = null, loadingMessage
         override fun onSuccess(t: T) {
             ioSensitive?.loadingMessage = null
             onSuccess(t)
-            println("ioSensitive = ${ioSensitive?.loadingMessage}")
             ioSensitive?.decreaseLoadingSignal()
         }
 
         override fun onSubscribe(d: Disposable) {
             ioSensitive?.loadingMessage = loadingMessage
-            println("ioSensitive = ${ioSensitive?.loadingMessage}")
             ioSensitive?.increaseLoadingSignal()
         }
 
