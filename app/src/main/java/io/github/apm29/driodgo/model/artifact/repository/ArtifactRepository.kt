@@ -77,4 +77,12 @@ class ArtifactRepository @Inject constructor(
         )
     }
 
+    fun loadCardDetail(id:Int,cardDetailData: MutableLiveData<CardListItem>, io: IOSensitive) {
+        artifactCardDao.getCardById(id)
+            .autoThreadSwitch()
+            .subscribeAuto(io,"加载卡牌详情.."){
+                cardDetailData.value = it.cardListItem
+            }
+    }
+
 }

@@ -34,7 +34,6 @@
 
         <ImageView
                 android:id="@+id/largeImage"
-                android:transitionName="@string/transition_name_image_card"
                 android:layout_width="0dp"
                 android:layout_height="140dp"
                 app:layout_constraintDimensionRatio="9:16"
@@ -100,7 +99,6 @@
 
         <ImageView
                 android:id="@+id/collapsedImage"
-                android:transitionName="@string/transition_name_image_card"
                 android:layout_width="0dp"
                 android:layout_height="40dp"
                 app:layout_constraintDimensionRatio="1:1"

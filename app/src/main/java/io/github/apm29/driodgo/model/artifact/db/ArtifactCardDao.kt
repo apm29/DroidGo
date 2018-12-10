@@ -16,6 +16,9 @@ abstract class ArtifactCardDao {
     @Query("Select * from artifact_card ")
     abstract fun getCardAll(): Single<List<CardEntity>>
 
+    @Query("Select * from artifact_card where  card_id = :id")
+    abstract fun getCardById(id:Int): Single<CardEntity>
+
     @Query("Select * from artifact_card ")
     abstract fun getCardAllSync(): List<CardEntity>
 

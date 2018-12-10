@@ -54,6 +54,7 @@ class CardStackFragment : BaseFragment() {
             cardAdapter.setCard(it)
         })
         setHasOptionsMenu(true)
+        loadCardData()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -110,9 +111,6 @@ class CardStackFragment : BaseFragment() {
 
             }
         )
-
-
-        loadCardData()
     }
 
     private fun loadCardData(reload: Boolean = false) {

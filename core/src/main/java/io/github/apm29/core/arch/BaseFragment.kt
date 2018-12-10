@@ -111,10 +111,14 @@ abstract class BaseFragment : Fragment(), HandleBackPress {
     @CallSuper
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        stubLoading?.inflate()
-        stubNormal?.layoutResource = layoutRes(savedInstanceState)
-        stubNormal?.inflate()
-        stubLoading?.visibility = View.GONE
+        try {
+            stubLoading?.inflate()
+            stubNormal?.layoutResource = layoutRes(savedInstanceState)
+            stubNormal?.inflate()
+            stubLoading?.visibility = View.GONE
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     abstract fun layoutRes(savedInstanceState: Bundle?):Int

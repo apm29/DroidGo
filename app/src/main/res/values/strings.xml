@@ -19,4 +19,5 @@
     <string name="text_creeps" tools:ignore="ExtraTranslation">Creep</string>
     <string name="menu_filter">筛选</string>
     <string name="menu_expand">展开</string>
+    <string name="transition_name_card_back_ground">card_back_ground</string>
 </resources>
