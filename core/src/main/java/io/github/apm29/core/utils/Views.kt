@@ -145,7 +145,7 @@ val View.shrinkAndGrowAnimator: ValueAnimator by lazy {
  * 扩展属性,用于grow动画预设最大生长高度
  */
 var View.expectedHeight: Int
-    get() = getTag(R.id.tag_expectedHeight) as? Int ?: 0
+    get() = getTag(R.id.tag_expectedHeight) as? Int ?: 200.toPx(context)
     set(value) {
         setTag(R.id.tag_expectedHeight, value)
     }

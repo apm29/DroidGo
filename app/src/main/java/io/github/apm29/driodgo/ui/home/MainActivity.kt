@@ -4,45 +4,50 @@ import android.content.Intent
 import android.os.Bundle
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import io.github.apm29.core.arch.BaseActivity
-import io.github.apm29.core.utils.Event
 import io.github.apm29.driodgo.R
 import kotlinx.android.synthetic.main.activity_drawer.*
 import kotlinx.android.synthetic.main.activity_host.*
 
 class MainActivity : BaseActivity() {
 
+
+
     private val cardStackFragment: CardStackFragment by lazy {
         CardStackFragment()
-    }
-
-    private val mOnNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
-        when (item.itemId) {
-            R.id.navigation_home -> {
-                supportFragmentManager.beginTransaction()
-                    .replace(R.id.fragmentHost, cardStackFragment)
-                    .commit()
-                return@OnNavigationItemSelectedListener true
-            }
-            R.id.navigation_dashboard -> {
-                supportFragmentManager.beginTransaction()
-                    .replace(R.id.fragmentHost, cardStackFragment)
-                    .commit()
-                return@OnNavigationItemSelectedListener true
-            }
-            R.id.navigation_notifications -> {
-                supportFragmentManager.beginTransaction()
-                    .replace(R.id.fragmentHost, cardStackFragment)
-                    .commit()
-                return@OnNavigationItemSelectedListener true
-            }
-        }
-        false
     }
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+
         setContentView(R.layout.activity_drawer)
+
+        val fragment = supportFragmentManager.findFragmentByTag("fragment") ?: cardStackFragment
+
+        val mOnNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.navigation_home -> {
+                    supportFragmentManager.beginTransaction()
+                        .replace(R.id.fragmentHost, fragment,"fragment")
+                        .commit()
+                    true
+                }
+                R.id.navigation_dashboard -> {
+                    supportFragmentManager.beginTransaction()
+                        .replace(R.id.fragmentHost, fragment,"fragment")
+                        .commit()
+                    true
+                }
+                R.id.navigation_notifications -> {
+                    supportFragmentManager.beginTransaction()
+                        .replace(R.id.fragmentHost, fragment,"fragment")
+                        .commit()
+                    true
+                }
+                else->false
+            }
+        }
 
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
 

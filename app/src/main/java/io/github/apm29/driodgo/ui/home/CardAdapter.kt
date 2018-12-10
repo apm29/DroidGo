@@ -11,6 +11,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import androidx.core.app.ActivityOptionsCompat
 import androidx.core.text.HtmlCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -189,12 +190,14 @@ class CardAdapter(
                             context.setExitSharedElementCallback(null)
                         }
                     })
-
                     val options = ActivityOptions.makeSceneTransitionAnimation(
                         context,
-                        Pair(largeImage, "largeImage")
+                        Pair.create<View, String>(largeImage, context.getString(R.string.transition_name_image_card)),
+                        Pair.create<View, String>(cardStack, context.getString(R.string.transition_name_card_back_ground))
                     )
                     val intent = Intent(context, CardDetailActivity::class.java)
+                    intent.putExtra("cardId",cardListItem.card_id)
+                    intent.putExtra("cardDetail",cardListItem)
                     context.startActivity(intent, options.toBundle())
 
                     notifyItemChanged(position, 1)
