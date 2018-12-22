@@ -7,22 +7,33 @@ import android.content.IntentFilter
 import android.net.ConnectivityManager
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
+import android.view.MenuItem
 import android.view.View
-import android.view.ViewStub
+import android.widget.FrameLayout
+import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.annotation.CallSuper
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
+import androidx.core.app.NavUtils
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import com.google.android.material.appbar.CollapsingToolbarLayout
 import io.github.apm29.core.R
 import io.github.apm29.core.arch.dagger.CoreComponent
 import io.github.apm29.core.utils.Event
+import io.github.apm29.core.utils.TAG_BACK_ARROW
+import io.github.apm29.core.utils.TAG_COLLAPSE
+import io.github.apm29.core.utils.TAG_TOOL_BAR
+import timber.log.Timber
 
 abstract class BaseActivity : AppCompatActivity(), BackPressSensitive, ConnectivitySensitive, IOObservable {
 
-    protected val mHandler: Handler = Handler()
+    protected val mHandler: Handler = Handler(Looper.getMainLooper())
 
     override var handleBackPress: HandleBackPress? = null
 
@@ -41,23 +52,31 @@ abstract class BaseActivity : AppCompatActivity(), BackPressSensitive, Connectiv
     open var showLoadingView: Boolean = true
     open var showErrorDialog: Boolean = true
     open var showNoConnectionView: Boolean = true
+    open var isUserStateChangeSensitive: Boolean = false
 
-    private val stubNormal: ViewStub by lazy { findViewById<ViewStub>(R.id.normalStub) }
-    private val stubLoading: ViewStub by lazy { findViewById<ViewStub>(R.id.loadingStub) }
+    private val stubNormal: FrameLayout by lazy { findViewById<FrameLayout>(R.id.normalStubActivity) }
+    private val stubLoading: View by lazy { findViewById<View>(R.id.loadingStubActivity) }
 
     private val loadingTextView: TextView by lazy {
-        findViewById<TextView>(R.id.loadingText)
+        findViewById<TextView>(R.id.textLoading)
     }
 
     private val progressBar: ProgressBar by lazy {
         findViewById<ProgressBar>(R.id.loading)
     }
 
-    private val stubNoConn: ViewStub by lazy { findViewById<ViewStub>(R.id.noConnectionStub) }
+    private val stubNoConn: View by lazy { findViewById<View>(R.id.noConnectionStubActivity) }
     private val errorDialog: AlertDialog by lazy {
         AlertDialog.Builder(this)
             .setTitle(getString(R.string.error_dialog_title))
             .create()
+    }
+
+    private val userStateChangerReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            onUserStateChange()
+        }
+
     }
 
     @CallSuper
@@ -67,6 +86,15 @@ abstract class BaseActivity : AppCompatActivity(), BackPressSensitive, Connectiv
 
         observeIO()
         observeConnectivity()
+
+        if (isUserStateChangeSensitive) {
+            LocalBroadcastManager.getInstance(this)
+                .registerReceiver(userStateChangerReceiver, IntentFilter(UserManager.ACTION_USER_STATE_CHANGE))
+        }
+    }
+
+    protected open fun onUserStateChange() {
+
     }
 
     private fun observeConnectivity() {
@@ -106,8 +134,22 @@ abstract class BaseActivity : AppCompatActivity(), BackPressSensitive, Connectiv
     }
 
     override fun setContentView(layoutResID: Int) {
-        stubNormal.layoutResource = layoutResID
-        stubNormal.inflate()
+        //stubNormal.removeAllViews()
+        val view = layoutInflater.inflate(layoutResID, stubNormal, true)
+        view.findViewWithTag<View?>(TAG_BACK_ARROW)?.setOnClickListener {
+            finish()
+        }
+        val toolbar = view.findViewWithTag<Toolbar?>(TAG_TOOL_BAR)
+        val collapse = view.findViewWithTag<CollapsingToolbarLayout?>(TAG_COLLAPSE)
+        if (collapse != null) {
+            collapse.title = "123"
+        } else {
+            toolbar?.title = "123"
+        }
+        setSupportActionBar(toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setDisplayShowHomeEnabled(true)
+        supportActionBar?.setDisplayShowTitleEnabled(true)
     }
 
     override var connected: Boolean = true
@@ -153,9 +195,14 @@ abstract class BaseActivity : AppCompatActivity(), BackPressSensitive, Connectiv
         super.onSaveInstanceState(outState)
     }
 
+    @CallSuper
     override fun onDestroy() {
         super.onDestroy()
         unregisterReceiver(connectivityReceiver)
+        mHandler.removeCallbacksAndMessages(null)
+        //ioSensitive.disposables.dispose()
+        LocalBroadcastManager.getInstance(this)
+            .unregisterReceiver(userStateChangerReceiver)
     }
 
     override fun onBackPressed() {
@@ -163,6 +210,18 @@ abstract class BaseActivity : AppCompatActivity(), BackPressSensitive, Connectiv
             super.onBackPressed()
         }
     }
+
+    override fun onSupportNavigateUp(): Boolean {
+        return handleBackPress?.handleBackPress() ?: false || super.onSupportNavigateUp()
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        if (item?.itemId == android.R.id.home) {
+            onBackPressed()
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
 
     protected open fun showLoadingView(loadingMessage: String?) {
         mHandler.post {
@@ -179,7 +238,7 @@ abstract class BaseActivity : AppCompatActivity(), BackPressSensitive, Connectiv
 
     }
 
-    protected open fun showNormalView(delay: Long = 500) {
+    protected open fun showNormalView(delay: Long = 800) {
         mHandler.postDelayed({
             stubLoading.visibility = View.GONE
             stubNoConn.visibility = View.GONE
@@ -193,5 +252,28 @@ abstract class BaseActivity : AppCompatActivity(), BackPressSensitive, Connectiv
             stubNoConn.visibility = View.VISIBLE
             stubNormal.visibility = View.GONE
         }
+    }
+
+    protected fun hideSystemUI() {
+        // Enables regular immersive mode.
+        // For "lean back" mode, remove SYSTEM_UI_FLAG_IMMERSIVE.
+        // Or for "sticky immersive," replace it with SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+        window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_IMMERSIVE
+                // Set the content to appear under the system bars so that the
+                // content doesn't resize when the system bars hide and show.
+                or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                // Hide the nav bar and status bar
+                or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                or View.SYSTEM_UI_FLAG_FULLSCREEN)
+    }
+
+    // Shows the system bars by removing all the flags
+    // except for the ones that make the content appear under the system bars.
+    protected fun showSystemUI() {
+        window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN)
     }
 }

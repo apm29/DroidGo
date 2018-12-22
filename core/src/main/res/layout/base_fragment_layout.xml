@@ -4,21 +4,23 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         >
-    <ViewStub
+    <include
             android:id="@+id/noConnectionStub"
             android:layout_width="match_parent"
+            android:visibility="gone"
             android:layout_height="match_parent"
-            android:layout="@layout/no_connection_layout"
+            layout="@layout/no_connection_layout"
             />
-    <ViewStub
+    <FrameLayout
             android:id="@+id/normalStub"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             />
-    <ViewStub
+    <include
             android:id="@+id/loadingStub"
+            android:visibility="gone"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout="@layout/fragment_loading_layout"
+            layout="@layout/fragment_loading_layout"
             />
 </FrameLayout>

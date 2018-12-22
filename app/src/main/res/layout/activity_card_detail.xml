@@ -5,6 +5,7 @@
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="@color/dim_black"
         android:transitionName="@string/transition_name_card_back_ground"
         >
 
@@ -19,6 +20,7 @@
             android:layout_marginEnd="8dp"
             app:layout_constraintEnd_toStartOf="@+id/guidelineEnd"
             android:layout_marginStart="8dp"
+            android:layout_marginBottom="8dp"
             app:layout_constraintStart_toStartOf="@+id/guidelineStart"
             app:layout_constraintTop_toTopOf="parent"
             android:scaleType="fitXY"

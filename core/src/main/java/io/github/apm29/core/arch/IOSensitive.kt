@@ -3,6 +3,7 @@ package io.github.apm29.core.arch
 import androidx.lifecycle.MutableLiveData
 import io.github.apm29.core.utils.Event
 import io.reactivex.disposables.CompositeDisposable
+import timber.log.Timber
 import java.util.concurrent.atomic.AtomicInteger
 
 /**
@@ -43,7 +44,7 @@ interface IOSensitive {
     }
 
     private fun signalLoading(signal: Int) {
-        println("signal = $signal")
+        Timber.d("signal = $signal")
         if (signal > 0) {
             loading.value = Event(true)
         } else {
@@ -55,6 +56,11 @@ interface IOSensitive {
     fun decreaseLoadingSignal() {
         val signal = signalStrength.decrementAndGet()
         signalLoading(signal)
+    }
+
+    fun resetLoadingSignal() {
+        signalStrength.set(0)
+        signalLoading(0)
     }
 
     fun sendMessage(err: String) {

@@ -24,25 +24,25 @@ class RemoteRepositoryModule {
 
     @Singleton
     @Provides
-    fun provideRetrofit(client: OkHttpClient, gson: Gson): Retrofit {
+    fun provideRetrofit(client: OkHttpClient.Builder, gson: Gson): Retrofit {
         return Retrofit.Builder()
             .addConverterFactory(GsonConverterFactory.create(gson))
             .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
             .baseUrl("https://dribbble.com/")
-            .client(client)
+            .client(client.build())
             .build()
     }
 
     @Singleton
     @Provides
-    fun provideClient(): OkHttpClient {
+    fun provideClient(): OkHttpClient.Builder {
         return OkHttpClient.Builder()
             .connectTimeout(20, TimeUnit.SECONDS)
             .readTimeout(30, TimeUnit.SECONDS)
             .addInterceptor(
                 //日志LOG
                 LoggingInterceptor.Builder()
-                    .loggable(false)
+                    .loggable(BuildConfig.DEBUG)
                     .setLevel(Level.BASIC)
                     .log(Platform.INFO)
                     .request("Request-LOG")
@@ -50,6 +50,5 @@ class RemoteRepositoryModule {
                     .addHeader("version", BuildConfig.VERSION_NAME)
                     .build()
             )
-            .build()
     }
 }

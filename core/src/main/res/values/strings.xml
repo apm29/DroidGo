@@ -3,4 +3,11 @@
     <string name="no_available_network">No Available Network</string>
     <string name="error_dialog_title">错误</string>
     <string name="loading_text">加载中..</string>
+
+    <string name="message_permission_rationale">您拒绝了以下权限,这将导致应用无法继续使用,请您在弹出的对话框同意授权,或者前往应用设置中心授权以下权限后继续使用:\n\n%1$s</string>
+    <string name="message_permission_request">为了正常使用本应用,请您在弹出的对话框同意授权,或者前往应用设置中心授权以下权限:\n\n%1$s</string>
+    <string name="title_permission_dialog">必要权限被拒!</string>
+    <string name="resume">继续</string>
+    <string name="cancel">取消</string>
+    <string name="text_unselected">未选择</string>
 </resources>

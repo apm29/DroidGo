@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="dim_black">#3000</color>
+    <color name="divider_white">#aeee</color>
+    <color name="divider_black">#a333</color>
 </resources>

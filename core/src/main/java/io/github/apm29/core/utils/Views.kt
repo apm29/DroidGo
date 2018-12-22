@@ -1,11 +1,39 @@
 package io.github.apm29.core.utils
 
 import android.animation.ValueAnimator
+import android.app.Activity
 import android.content.Context
 import android.graphics.Rect
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.View
+import android.view.inputmethod.InputMethodManager
+import android.widget.EditText
+import android.widget.TextView
+import androidx.annotation.ColorRes
 import androidx.core.view.isVisible
+import androidx.core.widget.NestedScrollView
+import com.google.android.material.textfield.TextInputLayout
 import io.github.apm29.core.R
+import io.github.apm29.core.arch.DroidGoApp
+
+abstract class SimpleTextWatcher : TextWatcher {
+    override fun afterTextChanged(s: Editable?) {
+    }
+
+    override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+    }
+
+    override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+
+    }
+
+}
+
+fun TextView.getTextOrEmpty(): String {
+    return this.text?.toString()?.trim() ?: ""
+}
+
 
 /**
  * Determines if two views intersect in the window.
@@ -36,8 +64,14 @@ fun View?.intersect(other: View?): Boolean {
 /**
  * dp -> px
  */
-fun Int.toPx(context: Context): Int {
+fun Int.dp(context: Context): Int {
     return (context.resources.displayMetrics.density * this).toInt()
+}
+/**
+ * sp -> px
+ */
+fun Int.sp(context: Context): Int {
+    return (context.resources.displayMetrics.scaledDensity * this).toInt()
 }
 
 /**
@@ -145,7 +179,200 @@ val View.shrinkAndGrowAnimator: ValueAnimator by lazy {
  * 扩展属性,用于grow动画预设最大生长高度
  */
 var View.expectedHeight: Int
-    get() = getTag(R.id.tag_expectedHeight) as? Int ?: 200.toPx(context)
+    get() = getTag(R.id.tag_expectedHeight) as? Int ?: 200.dp(context)
     set(value) {
         setTag(R.id.tag_expectedHeight, value)
     }
+
+
+fun View.hideSoftInput() {
+    val inputMethodManager = this.context.getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+    val windowToken = this.windowToken
+    windowToken?.let {
+        inputMethodManager.hideSoftInputFromWindow(windowToken, 0)
+    }
+}
+
+
+
+data class Verify constructor(var error: String, var success: Boolean, var currentView: View?) {
+
+    companion object {
+        @JvmStatic
+        fun init(): Verify {
+            return Verify(error = "验证完成", success = true, currentView = null)
+        }
+    }
+
+    fun verifyText(text: TextView, validate: (verify: Verify, text: String?, hint: String?) -> Verify = emptyVerify): Verify {
+        if (!success) {
+            return this
+        }
+        this.currentView = text
+        val content = text.text?.toString()
+        val result = validate(this, content, text.hint?.toString())
+        this.success = result.success
+        this.error = result.error
+        return this
+    }
+
+
+    fun verifyPicker(text: TextView, validate: (verify: Verify, text: String?, hint: String?) -> Verify = pickerEmptyVerify): Verify {
+        if (!success) {
+            return this
+        }
+        this.currentView = text
+        val content = text.text?.toString()
+        val result = validate(this, content, text.hint?.toString())
+        this.success = result.success
+        this.error = result.error
+        this.currentView = result.currentView
+        if (!success) {
+            text.error = result.error
+
+            val simpleTextWatcher = object : SimpleTextWatcher() {
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                    text.error = null
+                }
+            }
+            text.removeTextChangedListener(simpleTextWatcher)
+            text.addTextChangedListener(simpleTextWatcher)
+        } else {
+            text.error = null
+        }
+        return this
+    }
+
+    fun verifyEdit(inputLayout: TextInputLayout, validate: (verify: Verify, text: String?, hint: String?) -> Verify = emptyVerify): Verify {
+        if (!success) {
+            return this
+        }
+        this.currentView = inputLayout
+        val content = inputLayout.editText?.text?.toString()
+        val result = validate(this, content, inputLayout.editText?.hint?.toString())
+        this.success = result.success
+        this.error = result.error
+        this.currentView = result.currentView
+        if (!success) {
+            inputLayout.error = result.error
+
+            val simpleTextWatcher = object : SimpleTextWatcher() {
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                    inputLayout.error = null
+                }
+            }
+            inputLayout.editText?.removeTextChangedListener(simpleTextWatcher)
+            inputLayout.editText?.addTextChangedListener(simpleTextWatcher)
+        } else {
+            inputLayout.error = null
+        }
+        return this
+    }
+
+    fun verifyEdit(editText: EditText, validate: (verify: Verify, text: String?, hint: String?) -> Verify = emptyVerify): Verify {
+        if (!success) {
+            return this
+        }
+        this.currentView = editText
+        val content = editText.text?.toString()
+        val result = validate(this, content, editText.hint.toString())
+        this.success = result.success
+        this.error = result.error
+        this.currentView = result.currentView
+        if (!success) {
+            editText.error = result.error
+
+            val simpleTextWatcher = object : SimpleTextWatcher() {
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                    editText.error = null
+                }
+            }
+            editText.removeTextChangedListener(simpleTextWatcher)
+            editText.addTextChangedListener(simpleTextWatcher)
+        } else {
+            editText.error = null
+        }
+        return this
+    }
+
+    fun verifyConditional(prediction: Boolean, verifyAction: (Verify) -> Verify): Verify {
+        if (prediction) {
+            return verifyAction(this)
+        }
+        return this
+    }
+
+
+    private val emptyVerify: (Verify, String?, String?) -> Verify = { verify, text, hint ->
+        if (!verify.success) {
+            verify
+        } else {
+            verify.error = hint ?: "输入项不可为空"
+            verify.success = !(text.isNullOrEmpty())
+            verify
+        }
+    }
+
+    private val pickerEmptyVerify: (verify: Verify, text: String?, String?) -> Verify = { verify, text, hint ->
+        if (!verify.success) {
+            verify
+        } else {
+            verify.error = hint ?: "选择项不可为空"
+            verify.success = (!(text.isNullOrEmpty())) && text != DroidGoApp.application.getString(R.string.text_unselected)
+            verify
+        }
+    }
+
+}
+
+
+val mobileVerify: (Verify, String?, String?) -> Verify = { verify, text, hint ->
+    val trimText = text?.replace(" ","")
+    if (!verify.success) {
+        verify
+    } else {
+        verify.error = hint ?: "手机号输入错误"
+        verify.success =
+                (!(trimText.isNullOrEmpty()))
+                && trimText.length == 11
+        if (trimText?.length != 11) {
+            verify.error = "手机号码长度必须为11"
+        }
+        verify.currentView?.let {
+            if (it is TextView) {
+                it.error = if (verify.success) null else verify.error
+            }
+            if (it is TextInputLayout) {
+                it.error = if (verify.success) null else verify.error
+            }
+        }
+        verify
+    }
+}
+
+
+fun View?.findScrollViewAndScroll() {
+    this?.requestFocus()
+    val parent = findScrollView()
+    parent?.scrollTo(0, this?.top ?: parent.scrollY)
+}
+
+private fun View?.findScrollView(): NestedScrollView? {
+    return if (this is NestedScrollView) {
+        this
+    } else {
+        (this?.parent as? View)?.findScrollView()
+    }
+}
+
+fun View.dp(dp:Int):Int{
+    return dp.dp(context)
+}
+
+fun View.sp(sp:Int):Int{
+    return sp.sp(context)
+}
+
+fun View.colorOf(@ColorRes res:Int):Int{
+    return context.colorOf(res)
+}

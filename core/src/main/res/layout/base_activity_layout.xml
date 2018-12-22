@@ -4,21 +4,24 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         >
-    <ViewStub
-            android:id="@+id/noConnectionStub"
+    <include
+            android:id="@+id/noConnectionStubActivity"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout="@layout/no_connection_layout"
+            android:visibility="gone"
+            layout="@layout/no_connection_layout"
             />
-    <ViewStub
-            android:id="@+id/normalStub"
+    <FrameLayout
+            android:id="@+id/normalStubActivity"
+            android:tag="tag_normal"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             />
-    <ViewStub
-            android:id="@+id/loadingStub"
+    <include
+            android:id="@+id/loadingStubActivity"
+            android:visibility="gone"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout="@layout/activity_loading_layout"
+            layout="@layout/activity_loading_layout"
             />
 </FrameLayout>

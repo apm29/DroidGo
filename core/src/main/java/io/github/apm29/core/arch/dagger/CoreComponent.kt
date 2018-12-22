@@ -23,7 +23,7 @@ import javax.inject.Singleton
 interface CoreComponent {
     fun inject(app: DroidGoApp)
 
-    fun okHttp(): OkHttpClient
+    fun okHttp(): OkHttpClient.Builder
 
     fun retrofit(): Retrofit
 

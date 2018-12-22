@@ -22,13 +22,13 @@ class ArtifactApiModule {
     @Provides
     @FragmentScope
     @ArtifactAffair
-    fun provideArtifactRetrofit(okHttpClient: OkHttpClient):Retrofit{
+    fun provideArtifactRetrofit(okHttpClient: OkHttpClient.Builder):Retrofit{
         println("ArtifactApiModule.provideArtifactRetrofit")
         return Retrofit.Builder()
             .baseUrl("https://playartifact.com")
             .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
             .addConverterFactory(GsonConverterFactory.create())
-            .client(okHttpClient)
+            .client(okHttpClient.build())
             .build()
     }
 

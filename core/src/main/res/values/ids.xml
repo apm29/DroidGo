@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <item name="tag_expectedHeight" type="id"/>
+    <item name="tag_expectedHeight"
+          type="id"/>
+    <item name="tag_back"
+          type="id">
+    </item>
+    <item name="TAG_PICKER_CODE"
+          type="id"/>
 </resources>
