@@ -11,14 +11,12 @@ import android.os.Looper
 import android.view.MenuItem
 import android.view.View
 import android.widget.FrameLayout
-import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.annotation.CallSuper
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import androidx.core.app.NavUtils
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
@@ -29,7 +27,6 @@ import io.github.apm29.core.utils.Event
 import io.github.apm29.core.utils.TAG_BACK_ARROW
 import io.github.apm29.core.utils.TAG_COLLAPSE
 import io.github.apm29.core.utils.TAG_TOOL_BAR
-import timber.log.Timber
 
 abstract class BaseActivity : AppCompatActivity(), BackPressSensitive, ConnectivitySensitive, IOObservable {
 
@@ -200,7 +197,7 @@ abstract class BaseActivity : AppCompatActivity(), BackPressSensitive, Connectiv
         super.onDestroy()
         unregisterReceiver(connectivityReceiver)
         mHandler.removeCallbacksAndMessages(null)
-        //ioSensitive.disposables.dispose()
+        ioSensitive.disposables.dispose()
         LocalBroadcastManager.getInstance(this)
             .unregisterReceiver(userStateChangerReceiver)
     }

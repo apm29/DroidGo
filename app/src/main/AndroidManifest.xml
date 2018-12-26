@@ -40,7 +40,7 @@
                         />
             </intent-filter>
         </activity>
-        <activity android:name=".ui.home.CardDetailActivity"/>
+        <activity android:name=".ui.home.CardDetailActivity" android:theme="@style/AppTheme.Transparent"/>
     </application>
 
 </manifest>

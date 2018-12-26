@@ -50,4 +50,5 @@ dependencies {
     //dagger kapt
     kapt 'com.google.dagger:dagger-compiler:2.16'
     kapt "androidx.room:room-compiler:$room_version" // use kapt for Kotlin
+    implementation "androidx.palette:palette:1.0.0"
 }

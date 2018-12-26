@@ -105,12 +105,7 @@ dependencies {
      */
     debugImplementation 'androidx.core:core-ktx:1.0.0:sources'
     api 'androidx.core:core-ktx:1.0.1'
-    /**
-     * glide
-     * @href https://github.com/bumptech/glide
-     */
-    api 'com.github.bumptech.glide:glide:4.8.0'
-    kapt 'com.github.bumptech.glide:compiler:4.8.0'
+
 
     api ("com.github.bumptech.glide:recyclerview-integration:4.8.0") {
         // Excludes the support library because it's already included by Glide.
@@ -146,6 +141,13 @@ dependencies {
      * 下拉刷新/加载更多
      */
     api 'com.github.Aspsine:SwipeToLoadLayout:1.0.4'
+
+    /**
+     * glide
+     * @href https://github.com/bumptech/glide
+     */
+    api 'com.github.bumptech.glide:glide:4.8.0'
+    kapt 'com.github.bumptech.glide:compiler:4.8.0'
 
     /**
      * 日志

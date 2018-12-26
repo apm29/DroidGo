@@ -11,7 +11,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import androidx.core.app.ActivityOptionsCompat
 import androidx.core.text.HtmlCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -160,7 +159,7 @@ class CardAdapter(
                                 return false
                             }
                         }
-                imageIncludes.adapter = SkillAdapter(id)
+                imageIncludes.adapter = SkillAdapter(context,id)
             } else {
                 imageIncludes.adapter = null
             }
@@ -192,8 +191,8 @@ class CardAdapter(
                     })
                     val options = ActivityOptions.makeSceneTransitionAnimation(
                         context,
-                        Pair.create<View, String>(largeImage, context.getString(R.string.transition_name_image_card)),
-                        Pair.create<View, String>(cardStack, context.getString(R.string.transition_name_card_back_ground))
+                        Pair.create<View, String>(cardStack, context.getString(R.string.transition_name_card_back_ground)),
+                        Pair.create<View, String>(largeImage, context.getString(R.string.transition_name_image_card))
                     )
                     val intent = Intent(context, CardDetailActivity::class.java)
                     intent.putExtra("cardId",cardListItem.card_id)
@@ -234,6 +233,7 @@ class CardAdapter(
     }
 
     class SkillAdapter(
+        val context: Context,
         val id: List<CardReference>
     ) : RecyclerView.Adapter<SkillVH>() {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SkillVH {
@@ -246,10 +246,32 @@ class CardAdapter(
         }
 
         override fun onBindViewHolder(holder: SkillVH, position: Int) {
+            val cardReference = id[holder.adapterPosition]
             with(holder) {
                 GlideApp.with(itemView.context)
-                    .load(id[holder.adapterPosition].image)
+                    .load(cardReference.image)
                     .into(image)
+            }
+            holder.image.setOnClickListener {
+                if (context is Activity) {
+                    context.setExitSharedElementCallback(object : SharedElementCallback() {
+                        override fun onSharedElementStart(
+                            sharedElementNames: List<String>,
+                            sharedElements: List<View>,
+                            sharedElementSnapshots: List<View>
+                        ) {
+                            context.setExitSharedElementCallback(null)
+                        }
+                    })
+                    val options = ActivityOptions.makeSceneTransitionAnimation(
+                        context,
+                        Pair.create<View, String>(holder.image, context.getString(R.string.transition_name_image_card))
+                    )
+                    val intent = Intent(context, CardDetailActivity::class.java)
+                    intent.putExtra("cardId",cardReference.card_id)
+                    context.startActivity(intent, options.toBundle())
+                    notifyItemChanged(position, 1)
+                }
             }
         }
 

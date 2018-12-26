@@ -164,7 +164,9 @@ abstract class BaseFragment : Fragment(), HandleBackPress {
         Timber.d("BaseFragment.onDestroy")
         super.onDestroy()
         mHandler.removeCallbacksAndMessages(null)
-        //io.disposables.dispose()
+        if(listeningIoBySelf) {
+            io.disposables.dispose()
+        }
         LocalBroadcastManager.getInstance(requireContext())
             .unregisterReceiver(userStateChangerReceiver)
     }

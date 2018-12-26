@@ -10,6 +10,12 @@
         <item name="searchViewStyle">@style/SearchView</item>
     </style>
 
+
+    <style name="AppTheme.Transparent" parent="AppTheme">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowIsTranslucent">true</item>
+    </style>
+
     <style name="SearchView" parent="Widget.AppCompat.SearchView">
         <item name="searchIcon">@drawable/ic_action_search</item>
     </style>
