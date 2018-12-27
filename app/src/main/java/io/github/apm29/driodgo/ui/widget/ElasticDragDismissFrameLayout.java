@@ -118,7 +118,8 @@ public class ElasticDragDismissFrameLayout extends FrameLayout {
 
     @Override
     public boolean onStartNestedScroll(View child, View target, int nestedScrollAxes) {
-        return (nestedScrollAxes & View.SCROLL_AXIS_VERTICAL) != 0;
+        //return (nestedScrollAxes & View.SCROLL_AXIS_VERTICAL) != 0;
+        return true;
     }
 
     @Override

@@ -21,23 +21,7 @@
                 android:layout_height="match_parent"
                 >
 
-            <ImageView
-                    android:id="@+id/cardLargeImage"
-                    android:transitionName="@string/transition_name_image_card"
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    app:layout_constrainedWidth="true"
-                    app:layout_constraintDimensionRatio="W,16:9"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginEnd="8dp"
-                    app:layout_constraintEnd_toStartOf="@+id/guidelineEnd"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginBottom="8dp"
-                    app:layout_constraintStart_toStartOf="@+id/guidelineStart"
-                    app:layout_constraintTop_toTopOf="parent"
-                    android:scaleType="fitXY"
-                    android:src="@mipmap/ic_launcher"
-                    />
+
 
             <androidx.constraintlayout.widget.Guideline
                     android:layout_width="wrap_content"
@@ -56,6 +40,10 @@
                     />
 
             <androidx.cardview.widget.CardView
+                    app:cardElevation="0dp"
+                    android:translationZ="0dp"
+                    android:elevation="0dp"
+                    app:cardMaxElevation="0dp"
                     android:layout_margin="24dp"
                     android:transitionName="@string/transition_name_card_back_ground"
                     android:background="@color/white"
@@ -75,6 +63,25 @@
                         android:layout_height="match_parent"
                         />
             </androidx.cardview.widget.CardView>
+
+            <ImageView
+                    android:elevation="12dp"
+                    android:id="@+id/cardLargeImage"
+                    android:transitionName="@string/transition_name_image_card"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    app:layout_constrainedWidth="true"
+                    app:layout_constraintDimensionRatio="W,16:9"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="8dp"
+                    app:layout_constraintEnd_toStartOf="@+id/guidelineEnd"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginBottom="8dp"
+                    app:layout_constraintStart_toStartOf="@+id/guidelineStart"
+                    app:layout_constraintTop_toTopOf="parent"
+                    android:scaleType="fitXY"
+                    android:src="@mipmap/ic_launcher"
+                    />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.core.widget.NestedScrollView>

@@ -61,7 +61,7 @@ class CardDetailActivity : BaseActivity() {
 
     override fun onPause() {
         super.onPause()
-        draggableFrame.addListener(systemChromeFade)
+        draggableFrame.removeListener(systemChromeFade)
     }
 
     private fun loadCardDetail(cardId: Int) {
