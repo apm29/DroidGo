@@ -25,6 +25,7 @@ import io.github.apm29.driodgo.R
 import io.github.apm29.driodgo.model.artifact.bean.CardListItem
 import io.github.apm29.driodgo.model.artifact.bean.CardReference
 import io.github.apm29.driodgo.model.artifact.repository.CardDiffer
+import kotlinx.android.synthetic.main.item_card_layout.view.*
 import java.util.*
 
 class CardAdapter(
@@ -112,13 +113,15 @@ class CardAdapter(
             val expand = payloads.contains(ItemPayLoad.Expand)
             val expandAll = payloads.contains(ItemPayLoad.ExpandALL)
             val cardListItem = getFilteredData()[position]
-            if (expand || expandAll) {
-                holder.grpCollapsed.visibility = if (!cardListItem.isExpand) View.VISIBLE else View.GONE
-                holder.grpExpand.visibility = if (cardListItem.isExpand) View.VISIBLE else View.GONE
-                holder.cardStack.setCardBackgroundColor(cardListItem.getColor(context))
-            }
-            if (expandAll) {
-                holder.actionExpand.rotation = if (cardListItem.isExpand) 180f else 0f
+            with(holder.itemView) {
+                if (expand || expandAll) {
+                    grpCollapsed.visibility = if (!cardListItem.isExpand) View.VISIBLE else View.GONE
+                    grpExpand.visibility = if (cardListItem.isExpand) View.VISIBLE else View.GONE
+                    cardStack.setCardBackgroundColor(cardListItem.getColor(context))
+                }
+                if (expandAll) {
+                    actionExpand.rotation = if (cardListItem.isExpand) 180f else 0f
+                }
             }
         }
     }
@@ -128,14 +131,14 @@ class CardAdapter(
         val cardListItem = filteredData[position]
 
 
-        with(holder) {
+        with(holder.itemView) {
             actionExpand.rotation = if (cardListItem.isExpand) 180f else 0f
             cardStack.setCardBackgroundColor(cardListItem.getColor(context))
 
             grpCollapsed.visibility = if (!cardListItem.isExpand) View.VISIBLE else View.GONE
             grpExpand.visibility = if (cardListItem.isExpand) View.VISIBLE else View.GONE
 
-            GlideApp.with(itemView.context)
+            GlideApp.with(context)
                 .load(cardListItem.large_image?.schinese)
                 .transition(DrawableTransitionOptions.withCrossFade())
                 .placeholder(R.mipmap.ic_launcher)
@@ -145,7 +148,7 @@ class CardAdapter(
 
             textName.text = cardListItem.card_name?.schinese
             textAbility.text = HtmlCompat.fromHtml(
-                cardListItem.card_text?.schinese ?: "",
+                cardListItem.card_text?.schinese ?: "--",
                 HtmlCompat.FROM_HTML_OPTION_USE_CSS_COLORS
             )
 
@@ -159,18 +162,18 @@ class CardAdapter(
                                 return false
                             }
                         }
-                imageIncludes.adapter = SkillAdapter(context,id)
+                imageIncludes.adapter = SkillAdapter(context, id)
             } else {
                 imageIncludes.adapter = null
             }
 
-            GlideApp.with(itemView.context)
+            GlideApp.with(context)
                 .load(cardListItem.mini_image?.default)
                 .transition(DrawableTransitionOptions.withCrossFade())
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .into(collapsedImage)
 
-            textSmallName.text = cardListItem.card_name?.schinese
+            textNameCollapsed.text = cardListItem.card_name?.schinese
 
             actionExpand.setOnClickListener {
                 cardListItem.isExpand = !cardListItem.isExpand
@@ -180,23 +183,27 @@ class CardAdapter(
             }
             largeImage.setOnClickListener {
                 if (context is Activity) {
-                    context.setExitSharedElementCallback(object : SharedElementCallback() {
+                    val activity = context as Activity
+                    activity.setExitSharedElementCallback(object : SharedElementCallback() {
                         override fun onSharedElementStart(
                             sharedElementNames: List<String>,
                             sharedElements: List<View>,
                             sharedElementSnapshots: List<View>
                         ) {
-                            context.setExitSharedElementCallback(null)
+                            activity.setExitSharedElementCallback(null)
                         }
                     })
                     val options = ActivityOptions.makeSceneTransitionAnimation(
-                        context,
-                        Pair.create<View, String>(cardStack, context.getString(R.string.transition_name_card_back_ground)),
+                        activity,
+                        Pair.create<View, String>(
+                            textAbility,
+                            context.getString(R.string.transition_name_card_back_ground)
+                        ),
                         Pair.create<View, String>(largeImage, context.getString(R.string.transition_name_image_card))
                     )
                     val intent = Intent(context, CardDetailActivity::class.java)
-                    intent.putExtra("cardId",cardListItem.card_id)
-                    intent.putExtra("cardDetail",cardListItem)
+                    intent.putExtra("cardId", cardListItem.card_id)
+                    intent.putExtra("cardDetail", cardListItem)
                     context.startActivity(intent, options.toBundle())
 
                     notifyItemChanged(position, 1)
@@ -268,7 +275,7 @@ class CardAdapter(
                         Pair.create<View, String>(holder.image, context.getString(R.string.transition_name_image_card))
                     )
                     val intent = Intent(context, CardDetailActivity::class.java)
-                    intent.putExtra("cardId",cardReference.card_id)
+                    intent.putExtra("cardId", cardReference.card_id)
                     context.startActivity(intent, options.toBundle())
                     notifyItemChanged(position, 1)
                 }

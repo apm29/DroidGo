@@ -16,17 +16,13 @@ import android.widget.TextView
 import androidx.annotation.CallSuper
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import com.google.android.material.appbar.CollapsingToolbarLayout
 import io.github.apm29.core.R
 import io.github.apm29.core.arch.dagger.CoreComponent
-import io.github.apm29.core.utils.Event
-import io.github.apm29.core.utils.TAG_BACK_ARROW
-import io.github.apm29.core.utils.TAG_COLLAPSE
-import io.github.apm29.core.utils.TAG_TOOL_BAR
+import io.github.apm29.core.utils.*
+import timber.log.Timber
 
 abstract class BaseActivity : AppCompatActivity(), BackPressSensitive, ConnectivitySensitive, IOObservable {
 
@@ -42,17 +38,31 @@ abstract class BaseActivity : AppCompatActivity(), BackPressSensitive, Connectiv
         droidApp().mCoreComponent
     }
 
+    override val parentIOObservable: IOObservable? by lazy {
+        null
+    }
     override val ioSensitive: IOSensitive by lazy {
         ViewModelProviders.of(this).get(BaseActivityViewModel::class.java)
     }
+    override val viewNormal: FrameLayout by lazy {
+        findViewById<FrameLayout>(R.id.normalStubActivity)
+    }
+    override val viewLoading: View by lazy {
+        findViewById<View>(R.id.loadingStubActivity)
+    }
+    override val viewErrorHint: AlertDialog by lazy {
+        AlertDialog.Builder(this)
+            .setTitle(getString(R.string.error_dialog_title))
+            .create()
+    }
+
+    override val delegateLoadState: Boolean = true
 
     open var showLoadingView: Boolean = true
     open var showErrorDialog: Boolean = true
     open var showNoConnectionView: Boolean = true
-    open var isUserStateChangeSensitive: Boolean = false
 
-    private val stubNormal: FrameLayout by lazy { findViewById<FrameLayout>(R.id.normalStubActivity) }
-    private val stubLoading: View by lazy { findViewById<View>(R.id.loadingStubActivity) }
+    open var isUserStateChangeSensitive: Boolean = false
 
     private val loadingTextView: TextView by lazy {
         findViewById<TextView>(R.id.textLoading)
@@ -63,11 +73,7 @@ abstract class BaseActivity : AppCompatActivity(), BackPressSensitive, Connectiv
     }
 
     private val stubNoConn: View by lazy { findViewById<View>(R.id.noConnectionStubActivity) }
-    private val errorDialog: AlertDialog by lazy {
-        AlertDialog.Builder(this)
-            .setTitle(getString(R.string.error_dialog_title))
-            .create()
-    }
+
 
     private val userStateChangerReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -90,8 +96,9 @@ abstract class BaseActivity : AppCompatActivity(), BackPressSensitive, Connectiv
         }
     }
 
+    @CallSuper
     protected open fun onUserStateChange() {
-
+        Timber.d("userStateChange, userLogin:${UserManager.isLogin()},userInfo:${UserManager.userInfo}")
     }
 
     private fun observeConnectivity() {
@@ -106,15 +113,15 @@ abstract class BaseActivity : AppCompatActivity(), BackPressSensitive, Connectiv
             if (loading) {
                 showLoadingView(ioSensitive.loadingMessage)
             } else {
-                showNormalView()
+                hideLoadingView()
             }
         }
 
     }
     private val errorObserver = Observer<Event<String>> {
         it.getDataIfNotConsumed { message ->
-            errorDialog.setMessage(message)
-            errorDialog.show()
+            viewErrorHint.setMessage(message)
+            viewErrorHint.show()
         }
 
     }
@@ -131,22 +138,11 @@ abstract class BaseActivity : AppCompatActivity(), BackPressSensitive, Connectiv
     }
 
     override fun setContentView(layoutResID: Int) {
-        //stubNormal.removeAllViews()
-        val view = layoutInflater.inflate(layoutResID, stubNormal, true)
-        view.findViewWithTag<View?>(TAG_BACK_ARROW)?.setOnClickListener {
+        //viewNormal.removeAllViews()
+        val view = layoutInflater.inflate(layoutResID, viewNormal, true)
+        view.findViewWithTag<View?>(TAG_BACK_ARROW)?.setFilteredOnClickListener {
             finish()
         }
-        val toolbar = view.findViewWithTag<Toolbar?>(TAG_TOOL_BAR)
-        val collapse = view.findViewWithTag<CollapsingToolbarLayout?>(TAG_COLLAPSE)
-        if (collapse != null) {
-            collapse.title = "123"
-        } else {
-            toolbar?.title = "123"
-        }
-        setSupportActionBar(toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.setDisplayShowHomeEnabled(true)
-        supportActionBar?.setDisplayShowTitleEnabled(true)
     }
 
     override var connected: Boolean = true
@@ -156,7 +152,7 @@ abstract class BaseActivity : AppCompatActivity(), BackPressSensitive, Connectiv
     }
 
     override fun onConnected() {
-        showNormalView()
+        showConnected()
     }
 
     private fun checkConnectivity() {
@@ -223,8 +219,8 @@ abstract class BaseActivity : AppCompatActivity(), BackPressSensitive, Connectiv
     protected open fun showLoadingView(loadingMessage: String?) {
         mHandler.post {
             stubNoConn.visibility = View.GONE
-            stubLoading.visibility = View.VISIBLE
-            stubNormal.visibility = View.VISIBLE
+            viewLoading.visibility = View.VISIBLE
+            viewNormal.visibility = View.VISIBLE
 
             if (loadingMessage != null) {
                 loadingTextView.text = loadingMessage
@@ -235,19 +231,25 @@ abstract class BaseActivity : AppCompatActivity(), BackPressSensitive, Connectiv
 
     }
 
-    protected open fun showNormalView(delay: Long = 800) {
+    protected open fun hideLoadingView(delay: Long = 800) {
         mHandler.postDelayed({
-            stubLoading.visibility = View.GONE
+            viewLoading.visibility = View.GONE
             stubNoConn.visibility = View.GONE
-            stubNormal.visibility = View.VISIBLE
+            viewNormal.visibility = View.VISIBLE
         }, delay)
     }
 
     protected open fun showNoConnection() {
         mHandler.post {
-            stubLoading.visibility = View.GONE
             stubNoConn.visibility = View.VISIBLE
-            stubNormal.visibility = View.GONE
+            viewNormal.visibility = View.GONE
+        }
+    }
+
+    protected open fun showConnected() {
+        mHandler.post {
+            stubNoConn.visibility = View.GONE
+            viewNormal.visibility = View.VISIBLE
         }
     }
 

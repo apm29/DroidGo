@@ -20,6 +20,6 @@ class CardDiffer(
     }
 
     override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-        return oldItems[oldItemPosition].isExpand == newItems[newItemPosition].isExpand
+        return false
     }
 }

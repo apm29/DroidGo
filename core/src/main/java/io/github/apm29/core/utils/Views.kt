@@ -1,6 +1,7 @@
 package io.github.apm29.core.utils
 
 import android.animation.ValueAnimator
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.graphics.Rect
@@ -16,6 +17,14 @@ import androidx.core.widget.NestedScrollView
 import com.google.android.material.textfield.TextInputLayout
 import io.github.apm29.core.R
 import io.github.apm29.core.arch.DroidGoApp
+import io.reactivex.BackpressureStrategy
+import io.reactivex.Flowable
+import io.reactivex.FlowableEmitter
+import io.reactivex.FlowableOnSubscribe
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
+import timber.log.Timber
+import java.util.concurrent.TimeUnit
 
 abstract class SimpleTextWatcher : TextWatcher {
     override fun afterTextChanged(s: Editable?) {
@@ -67,6 +76,7 @@ fun View?.intersect(other: View?): Boolean {
 fun Int.dp(context: Context): Int {
     return (context.resources.displayMetrics.density * this).toInt()
 }
+
 /**
  * sp -> px
  */
@@ -104,7 +114,7 @@ fun View.startRotate(degreeInit: Float = 0f, rotateDegree: Float = 180f, duratio
  * View 缩小动画
  * @return 如果在动画中就返回false
  */
-fun View.shrink(durationAnim: Long = 400):Boolean {
+fun View.shrink(durationAnim: Long = 400): Boolean {
     if (shrinkAndGrowAnimator.isRunning) {
         return false
     }
@@ -127,7 +137,7 @@ fun View.shrink(durationAnim: Long = 400):Boolean {
 }
 
 /**
- * view 生长动画
+ * ioObservable 生长动画
  * 需要先设置expectedHeight,可以通过ViewTreeObserve获取布局后的高度,赋值给扩展属性expectedHeight
  * @return  如果在动画中就返回false
  */
@@ -185,14 +195,15 @@ var View.expectedHeight: Int
     }
 
 
-fun View.hideSoftInput() {
-    val inputMethodManager = this.context.getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
-    val windowToken = this.windowToken
-    windowToken?.let {
-        inputMethodManager.hideSoftInputFromWindow(windowToken, 0)
+fun View?.hideSoftInput() {
+    if (this != null) {
+        val inputMethodManager = this.context.getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+        val windowToken = this.windowToken
+        windowToken?.let {
+            inputMethodManager.hideSoftInputFromWindow(windowToken, 0)
+        }
     }
 }
-
 
 
 data class Verify constructor(var error: String, var success: Boolean, var currentView: View?) {
@@ -204,7 +215,10 @@ data class Verify constructor(var error: String, var success: Boolean, var curre
         }
     }
 
-    fun verifyText(text: TextView, validate: (verify: Verify, text: String?, hint: String?) -> Verify = emptyVerify): Verify {
+    fun verifyText(
+        text: TextView,
+        validate: (verify: Verify, text: String?, hint: String?) -> Verify = emptyVerify
+    ): Verify {
         if (!success) {
             return this
         }
@@ -217,7 +231,10 @@ data class Verify constructor(var error: String, var success: Boolean, var curre
     }
 
 
-    fun verifyPicker(text: TextView, validate: (verify: Verify, text: String?, hint: String?) -> Verify = pickerEmptyVerify): Verify {
+    fun verifyPicker(
+        text: TextView,
+        validate: (verify: Verify, text: String?, hint: String?) -> Verify = pickerEmptyVerify
+    ): Verify {
         if (!success) {
             return this
         }
@@ -243,7 +260,10 @@ data class Verify constructor(var error: String, var success: Boolean, var curre
         return this
     }
 
-    fun verifyEdit(inputLayout: TextInputLayout, validate: (verify: Verify, text: String?, hint: String?) -> Verify = emptyVerify): Verify {
+    fun verifyEdit(
+        inputLayout: TextInputLayout,
+        validate: (verify: Verify, text: String?, hint: String?) -> Verify = emptyVerify
+    ): Verify {
         if (!success) {
             return this
         }
@@ -269,7 +289,10 @@ data class Verify constructor(var error: String, var success: Boolean, var curre
         return this
     }
 
-    fun verifyEdit(editText: EditText, validate: (verify: Verify, text: String?, hint: String?) -> Verify = emptyVerify): Verify {
+    fun verifyEdit(
+        editText: EditText,
+        validate: (verify: Verify, text: String?, hint: String?) -> Verify = emptyVerify
+    ): Verify {
         if (!success) {
             return this
         }
@@ -281,12 +304,13 @@ data class Verify constructor(var error: String, var success: Boolean, var curre
         this.currentView = result.currentView
         if (!success) {
             editText.error = result.error
-
-            val simpleTextWatcher = object : SimpleTextWatcher() {
-                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                    editText.error = null
+            val simpleTextWatcher =
+                editText.getTag(R.id.TAG_TEXT_ERROR_WATCHER) as? SimpleTextWatcher ?: object : SimpleTextWatcher() {
+                    override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                        editText.error = null
+                    }
                 }
-            }
+            editText.setTag(R.id.TAG_TEXT_ERROR_WATCHER,simpleTextWatcher)
             editText.removeTextChangedListener(simpleTextWatcher)
             editText.addTextChangedListener(simpleTextWatcher)
         } else {
@@ -318,7 +342,8 @@ data class Verify constructor(var error: String, var success: Boolean, var curre
             verify
         } else {
             verify.error = hint ?: "选择项不可为空"
-            verify.success = (!(text.isNullOrEmpty())) && text != DroidGoApp.application.getString(R.string.text_unselected)
+            verify.success = (!(text.isNullOrEmpty())) && text !=
+                    DroidGoApp.application.getString(R.string.text_unselected)
             verify
         }
     }
@@ -327,7 +352,7 @@ data class Verify constructor(var error: String, var success: Boolean, var curre
 
 
 val mobileVerify: (Verify, String?, String?) -> Verify = { verify, text, hint ->
-    val trimText = text?.replace(" ","")
+    val trimText = text?.replace(" ", "")
     if (!verify.success) {
         verify
     } else {
@@ -365,14 +390,34 @@ private fun View?.findScrollView(): NestedScrollView? {
     }
 }
 
-fun View.dp(dp:Int):Int{
+fun View.dp(dp: Int): Int {
     return dp.dp(context)
 }
 
-fun View.sp(sp:Int):Int{
+fun View.sp(sp: Int): Int {
     return sp.sp(context)
 }
 
-fun View.colorOf(@ColorRes res:Int):Int{
+fun View.colorOf(@ColorRes res: Int): Int {
     return context.colorOf(res)
+}
+
+
+@SuppressLint("CheckResult")
+fun View.setFilteredOnClickListener(doAfterSet: (() -> Unit)? = null, listener: (View) -> Unit) {
+    Flowable.create(FlowableOnSubscribe<View> { emitter ->
+        setOnClickListener {
+            if (!emitter.isCancelled) {
+                emitter.onNext(it)
+            }
+        }
+        doAfterSet?.invoke()
+    }, BackpressureStrategy.LATEST)
+        .subscribeOn(AndroidSchedulers.mainThread())
+        .observeOn(AndroidSchedulers.mainThread())
+        .throttleFirst(400, TimeUnit.MILLISECONDS, AndroidSchedulers.mainThread())
+        .subscribe {
+            Timber.d("clicked ioObservable handled:$it")
+            listener(it)
+        }
 }

@@ -8,6 +8,8 @@
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:actionOverflowButtonStyle">@style/ActionOverFlow</item>
         <item name="searchViewStyle">@style/SearchView</item>
+        <!--<item name="android:windowSharedElementEnterTransition">@transition/activity_enter_transition</item>-->
+        <!--<item name="android:windowSharedElementReturnTransition">@transition/activity_enter_transition</item>-->
     </style>
 
 

@@ -1,0 +1,37 @@
+@startuml
+interface IOSensitive{
+    + MutableLiveData<Event<Boolean>> loading
+    + MutableLiveData<Event<String>> message
+    + CompositeDisposable disposables
+    + String loadingMessage
+    - AtomicInteger loadingSignal
+
+    + increaseLoadingSignal(String loadingMessage)
+    + decreaseLoadingSignal()
+    + resetLoadingSignal()
+    - signalLoading()
+
+    {static} bindWithIO(IOSensitive io,String message)
+}
+
+interface IOObservable{
+    IOSensitive ioSensitive
+    IOObservable parentIoObservable
+
+}
+
+abstract class BaseActivity
+abstract class DroidGo
+
+IOObservable *-- IOSensitive
+
+IOObservable <|--- BaseActivity
+
+DroidGo *---BaseActivity
+ActivityComponentHolder <|---BaseActivity
+ActivityComponentHolder *-ActivityComponent
+DroidGo *--AppComponent
+
+
+
+@enduml

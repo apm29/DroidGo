@@ -7,4 +7,6 @@
     </item>
     <item name="TAG_PICKER_CODE"
           type="id"/>
+    <item name="TAG_TEXT_ERROR_WATCHER"
+          type="id"/>
 </resources>

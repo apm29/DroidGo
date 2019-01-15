@@ -9,6 +9,10 @@ import io.github.apm29.core.utils.SP_KEY_USER_TOKEN
 
 object UserManager {
 
+    init {
+        checkInit()
+    }
+
     interface IUserInfo
 
     private lateinit var sharedPreferences: SharedPreferences
@@ -43,12 +47,14 @@ object UserManager {
 
 
     fun saveUserMobile(mobile: String?): Boolean {
+        checkInit()
         return sharedPreferences.edit()
             .putString(SP_KEY_USER_MOBILE, mobile)
             .commit()
     }
 
     fun getUserMobile(mask: Boolean = false): String? {
+        checkInit()
         sharedPreferences.getString(SP_KEY_USER_MOBILE, null).apply {
             return if (mask && null != this && length > 7) {
                 this.replaceRange(4..7, "****")

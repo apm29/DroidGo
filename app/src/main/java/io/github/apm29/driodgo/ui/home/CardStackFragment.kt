@@ -1,6 +1,7 @@
 package io.github.apm29.driodgo.ui.home
 
 import android.os.Bundle
+import android.transition.TransitionSet
 import android.view.*
 import android.widget.ImageView
 import android.widget.TextView
@@ -13,6 +14,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import android.transition.ChangeBounds
 import com.bumptech.glide.integration.recyclerview.RecyclerViewPreloader
 import com.bumptech.glide.util.ViewPreloadSizeProvider
 import io.github.apm29.core.arch.BaseFragment
@@ -28,7 +30,7 @@ import kotlinx.android.synthetic.main.fragment_card_stack.*
 import javax.inject.Inject
 import io.github.apm29.driodgo.di.DaggerCardStackComponent
 import kotlinx.android.synthetic.main.header_card_stack_layout.*
-
+import io.github.apm29.driodgo.ui.transitions.*
 
 class CardStackFragment : BaseFragment() {
     override fun layoutRes(savedInstanceState: Bundle?): Int {
@@ -55,10 +57,21 @@ class CardStackFragment : BaseFragment() {
         })
         setHasOptionsMenu(true)
         loadCardData()
+
+        sharedElementEnterTransition = TransitionSet()
+            .addTransition(TextFlow())
+            .addTransition(ChangeBounds())
+            .setOrdering(TransitionSet.ORDERING_TOGETHER)
+            .setDuration(3000)
+        sharedElementReturnTransition = TransitionSet()
+            .addTransition(TextFlow())
+            .addTransition(ChangeBounds())
+            .setOrdering(TransitionSet.ORDERING_TOGETHER)
+            .setDuration(3000)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view,savedInstanceState)
+        super.onViewCreated(view, savedInstanceState)
         val toolbar = view.findViewById<Toolbar?>(R.id.toolbar)
         (requireActivity() as? AppCompatActivity)?.setSupportActionBar(toolbar)
         val searchView = view.findViewById<SearchView>(R.id.searchView)
@@ -98,11 +111,11 @@ class CardStackFragment : BaseFragment() {
 
         cardFilter.onFilterChangeCallBack = {
             it.forEach { entry ->
-                cardAdapter.addCardFilter(entry.key,entry.value)
+                cardAdapter.addCardFilter(entry.key, entry.value)
             }
         }
         cardFilter.viewTreeObserver.addOnGlobalLayoutListener(
-            object :ViewTreeObserver.OnGlobalLayoutListener{
+            object : ViewTreeObserver.OnGlobalLayoutListener {
                 override fun onGlobalLayout() {
                     cardFilter.expectedHeight = cardFilter.measuredHeight
                     cardFilter.shrink()
@@ -133,7 +146,7 @@ class CardStackFragment : BaseFragment() {
         val cardStack: CardView = itemView.findViewById(R.id.cardStack)
     }
 
-    private var menu:Menu? = null
+    private var menu: Menu? = null
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater?) {
         inflater?.inflate(R.menu.card_stack_menu, menu)
@@ -150,7 +163,7 @@ class CardStackFragment : BaseFragment() {
                 onExpandActionClicked(item)
                 true
             }
-            item?.itemId == R.id.menu_filter->{
+            item?.itemId == R.id.menu_filter -> {
                 onFilterActionClicked(item)
                 true
             }
@@ -161,12 +174,12 @@ class CardStackFragment : BaseFragment() {
     private fun onFilterActionClicked(item: MenuItem) {
 
         //cardFilter.visibility = if(item.isChecked ) View.GONE else View.VISIBLE
-        if(!item.isChecked ) {
-            if(cardFilter.shrink()){
+        if (!item.isChecked) {
+            if (cardFilter.shrink()) {
                 item.isChecked = !item.isChecked
             }
-        }else{
-            if(cardFilter.grow()){
+        } else {
+            if (cardFilter.grow()) {
                 item.isChecked = !item.isChecked
             }
         }
@@ -180,8 +193,8 @@ class CardStackFragment : BaseFragment() {
         }
     }
 
-    private fun onExpandActionClicked(item: MenuItem, expandAll:Boolean? = null) {
-        item.isChecked = expandAll?:!item.isChecked
+    private fun onExpandActionClicked(item: MenuItem, expandAll: Boolean? = null) {
+        item.isChecked = expandAll ?: !item.isChecked
         item.icon = ContextCompat.getDrawable(
             requireContext(),
             if (item.isChecked) R.drawable.ic_action_all_collapse else R.drawable.ic_action_all_expand

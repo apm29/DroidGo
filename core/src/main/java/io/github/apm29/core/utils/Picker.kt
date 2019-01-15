@@ -12,12 +12,10 @@ fun <T> TextView.setupOneOptPicker(
     showRange: IntRange = 0 until list.size,
     selectedOp: ((T, String, View) -> Unit)? = null
 ) {
-    val dataList = arrayListOf<Pair<T, String>>()
-    list.forEachIndexed { index, pair ->
-        if (index in showRange) {
-            dataList.add(pair)
-        }
+    val dataList = list.filterIndexed { index, _ ->
+        index in showRange
     }
+
     val pickerViewOption = OptionsPickerBuilder(context, OnOptionsSelectListener { options1, _, _, _ ->
         val pair = (dataList[options1])
         this.text = pair.second
@@ -36,7 +34,7 @@ fun <T> TextView.setupOneOptPicker(
     }
     pickerViewOption.setPicker(stringList)
     isEnabled = true
-    this.setOnClickListener {
+    this.setFilteredOnClickListener {
         it.hideSoftInput()
         pickerViewOption.show()
     }

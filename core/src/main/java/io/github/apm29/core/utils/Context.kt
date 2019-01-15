@@ -1,12 +1,12 @@
 package io.github.apm29.core.utils
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.DialogInterface
 import android.provider.ContactsContract
-import android.telephony.TelephonyManager
 import android.text.TextUtils
+import android.view.LayoutInflater
+import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.ColorRes
 import androidx.appcompat.app.AlertDialog
@@ -26,9 +26,19 @@ var toast: Toast? = null
 fun Context.showToast(msg: String?) {
     msg?.let {
         if (toast == null) {
-            toast = Toast.makeText(this, msg, Toast.LENGTH_LONG)
+            try {
+                toast = Toast(this)
+                toast?.view = LayoutInflater.from(this).inflate(R.layout.toast_layout, null, false)
+            } catch (e: Exception) {
+                toast = Toast.makeText(this, msg, Toast.LENGTH_LONG)
+            }
         }
-        toast?.setText(msg)
+        val textView = toast?.view?.findViewById<TextView>(R.id.textToast)
+        if (textView != null) {
+            textView.text = msg
+        } else {
+            toast?.setText(msg)
+        }
         toast?.show()
     }
 }
@@ -49,7 +59,7 @@ fun Fragment.colorOf(@ColorRes colorRes: Int): Int {
 fun Context.requestAndPermission(
     permissions: Array<String>,
     onGranted: (List<String>) -> Unit,
-    onCancel: ((DialogInterface, Int) -> Unit)?=null
+    onCancel: ((DialogInterface, Int) -> Unit)? = null
 ) {
     com.yanzhenjie.permission.AndPermission.with(this)
         .runtime()
@@ -90,7 +100,7 @@ fun Context.requestAndPermission(
 fun Fragment.requestAndPermission(
     permissions: Array<String>,
     onGranted: (List<String>) -> Unit,
-    onCancel: ((DialogInterface, Int) -> Unit)?=null
+    onCancel: ((DialogInterface, Int) -> Unit)? = null
 ) {
     requireContext().requestAndPermission(permissions, onGranted, onCancel)
 }
@@ -121,6 +131,6 @@ fun Context.tryReadContacts() {
     query?.close()
 }
 
-fun Fragment.tryReadContact(){
+fun Fragment.tryReadContact() {
     requireContext().tryReadContacts()
 }

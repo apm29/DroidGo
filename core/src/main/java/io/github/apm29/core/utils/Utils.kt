@@ -1,5 +1,7 @@
 package io.github.apm29.core.utils
 
+import android.os.Handler
+import androidx.core.os.postDelayed
 import java.util.regex.Pattern
 
 
@@ -43,4 +45,9 @@ fun delHTMLTag(htmlStr: String): String {
 
 fun String.deleteHtml(): String {
     return delHTMLTag(this)
+}
+
+
+fun Handler.postDelay(delay: Long, runnable: () -> Unit) {
+    postDelayed({ runnable() }, delay)
 }

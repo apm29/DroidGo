@@ -3,6 +3,7 @@ package io.github.apm29.driodgo
 import org.junit.Test
 
 import org.junit.Assert.*
+import java.util.*
 
 /**
  * Example local unit test, which will execute on the development machine (host).
@@ -16,6 +17,11 @@ class ExampleUnitTest {
 
         var color = 0b0111
         var black = 0b1000
+
+        println(UUID.randomUUID())
+        println(UUID.randomUUID())
+        println(UUID.randomUUID())
+        println(UUID.randomUUID())
 
         println("check black : ${(color or black).toString(2)}")
         println("uncheck black : ${(color and  (black.inv())).toString(2)}")

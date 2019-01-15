@@ -25,7 +25,7 @@ interface CoreComponent {
 
     fun okHttp(): OkHttpClient.Builder
 
-    fun retrofit(): Retrofit
+    fun retrofit(): Retrofit.Builder
 
     fun gson(): Gson
 

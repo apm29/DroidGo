@@ -50,8 +50,9 @@ abstract class BaseFragment : Fragment(), HandleBackPress {
 
     }
 
+    @CallSuper
     protected open fun onUserStateChange() {
-
+        Timber.d("userStateChange, userLogin:${UserManager.isLogin()},userInfo:${UserManager.userInfo}")
     }
 
     /**
@@ -98,10 +99,11 @@ abstract class BaseFragment : Fragment(), HandleBackPress {
         }, delay)
     }
 
-    protected open fun onLoadingStop(){
+    protected open fun onLoadingStop() {
 
     }
-    protected open fun onLoadingStart(){
+
+    protected open fun onLoadingStart() {
 
     }
 
@@ -164,7 +166,7 @@ abstract class BaseFragment : Fragment(), HandleBackPress {
         Timber.d("BaseFragment.onDestroy")
         super.onDestroy()
         mHandler.removeCallbacksAndMessages(null)
-        if(listeningIoBySelf) {
+        if (listeningIoBySelf) {
             io.disposables.dispose()
         }
         LocalBroadcastManager.getInstance(requireContext())

@@ -11,6 +11,7 @@ import okhttp3.internal.platform.Platform
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
+import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
@@ -24,13 +25,12 @@ class RemoteRepositoryModule {
 
     @Singleton
     @Provides
-    fun provideRetrofit(client: OkHttpClient.Builder, gson: Gson): Retrofit {
+    fun provideRetrofit(client: OkHttpClient.Builder, gson: Gson): Retrofit.Builder {
+        Timber.d("retrofit created")
         return Retrofit.Builder()
             .addConverterFactory(GsonConverterFactory.create(gson))
             .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-            .baseUrl("https://dribbble.com/")
             .client(client.build())
-            .build()
     }
 
     @Singleton
