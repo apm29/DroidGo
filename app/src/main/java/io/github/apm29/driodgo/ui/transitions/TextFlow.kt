@@ -5,7 +5,6 @@ import android.transition.Transition
 import android.transition.TransitionValues
 import android.view.ViewGroup
 import android.widget.TextView
-import timber.log.Timber
 
 class TextFlow : Transition() {
 
@@ -42,9 +41,6 @@ class TextFlow : Transition() {
         startValues: TransitionValues?,
         endValues: TransitionValues?
     ): Animator? {
-        Timber.d("$startValues")
-        Timber.d("$endValues")
-
         return super.createAnimator(sceneRoot, startValues, endValues)
     }
 

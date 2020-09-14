@@ -49,12 +49,12 @@ class CardDetailActivity : BaseActivity() {
             .addTransition(TextFlow())
             .addTransition(ChangeBounds())
             .setOrdering(TransitionSet.ORDERING_TOGETHER)
-            .setDuration(3000)
+            .setDuration(300)
         window.sharedElementReturnTransition = TransitionSet()
             .addTransition(TextFlow())
             .addTransition(ChangeBounds())
             .setOrdering(TransitionSet.ORDERING_TOGETHER)
-            .setDuration(3000)
+            .setDuration(300)
     }
 
     private fun initCardContent(card: CardListItem) {
